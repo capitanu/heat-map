@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "659978148198",
+    "firebase_url": "https://c19-heat-map.firebaseio.com",
+    "project_id": "c19-heat-map",
+    "storage_bucket": "c19-heat-map.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:659978148198:android:d64d68a1a26ccfc7b750a7",
+        "android_client_info": {
+          "package_name": "com.darthvader11.c19_heat_map"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "659978148198-7bpdjds3vjmf2ded9alkuld5ro42a1cn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXWRr9P07JyCISS5iwR2XMnuHgRrPRUeA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "659978148198-7bpdjds3vjmf2ded9alkuld5ro42a1cn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

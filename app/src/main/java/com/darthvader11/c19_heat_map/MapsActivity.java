@@ -7,10 +7,13 @@ import androidx.fragment.app.FragmentActivity;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -18,15 +21,23 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.nio.channels.FileChannel;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-
+    private FirebaseDatabase fbdb;
+    private DatabaseReference dbRef;
+    public Location location;
+    public static MapsActivity instance;
+    public LocationManager locationManager;
+    public Criteria criteria;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +47,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        Toast.makeText(this,"Firebase connection success", Toast.LENGTH_LONG).show();
+        fbdb = FirebaseDatabase.getInstance();
+        dbRef = fbdb.getReference("message");
+        dbRef.setValue("Hello World!");
+        dbRef.setValue("Another message!");
+        instance = this;
     }
 
 
@@ -52,8 +70,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //mMap.addMarker(new MarkerOptions().position(bucharest).title("Marker in Bucharest"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(bucharest));
 
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        criteria = new Criteria();
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
@@ -69,7 +87,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setMyLocationEnabled(true);
 
-        Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+        location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
         if (location != null)
         {
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
@@ -80,6 +98,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .build();                   // Creates a CameraPosition from the builder
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
+
+
+        mMap.addCircle(
+                new CircleOptions()
+                        .center(bucharest)
+                        .radius(500)
+                        .strokeWidth(3)
+                        .strokeColor(Color.RED)
+                        .fillColor(Color.argb(70,100,0,0))
+
+        );
+
+        Log.v("tag", location.toString());
+        SendToDatabase std = new SendToDatabase();
+        std.execute();
+
     }
 
 
@@ -101,6 +135,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     }
+
 
 
 }
