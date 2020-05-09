@@ -288,8 +288,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-          //for(int i = 0; i < 10; i++){
-         //  dbRef.child(String.valueOf(maxId + i)).setValue(zones[i]);
+        //for(int i = 0; i < 10; i++){
+        //  dbRef.child(String.valueOf(maxId + i)).setValue(zones[i]);
         //}
         //zones[3].polygon.setFillColor(Color.argb(250 ,255,207,10));
         //dbRef.child(String.valueOf(zones[3].id)).child("polygon").setValue(zones[3].polygon);
