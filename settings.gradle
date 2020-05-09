@@ -1,0 +1,2 @@
+rootProject.name='C19-Heat-Map'
+include ':app'
