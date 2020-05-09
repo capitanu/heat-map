@@ -1,5 +1,6 @@
 package com.darthvader11.c19_heat_map;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -26,11 +27,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.firebase.database.ValueEventListener;
 
 
 import java.nio.channels.FileChannel;
@@ -38,15 +42,14 @@ import java.nio.channels.FileChannel;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback/* GoogleMap.OnMapLongClickListener,
         GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener*/ {
 
-    private GoogleMap mMap;
-
-    private FirebaseDatabase fbdb;
+    public GoogleMap mMap;
     private DatabaseReference dbRef;
     public Location location;
     public static MapsActivity instance;
     public LocationManager locationManager;
     public Criteria criteria;
-
+    public Zone[] zones;
+    public long maxId = 0;
     boolean markerClicked;
     PolygonOptions polygonOptions;
     Polygon polygon;
@@ -64,10 +67,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         Toast.makeText(this,"Firebase connection success", Toast.LENGTH_LONG).show();
-        fbdb = FirebaseDatabase.getInstance();
-        dbRef = fbdb.getReference("message");
-        dbRef.setValue("Hello World!");
-        dbRef.setValue("whatever");
+        dbRef = FirebaseDatabase.getInstance().getReference().child("Polygons");
+        //dbRef = fbdb.getReference("message");
+        //dbRef.setValue("Hello World!");
+        //dbRef.setValue("whatever");
         instance = this;
 
       //  mMap.setMyLocationEnabled(true);
@@ -247,6 +250,54 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Polygon polygon8 = mMap.addPolygon(rectOptions8);
         Polygon polygon9 = mMap.addPolygon(rectOptions9);
         Polygon polygon10 = mMap.addPolygon(rectOptions10);
+
+        Zone zone1 = new Zone(polygon1, 0, 0);
+        Zone zone2 = new Zone(polygon2, 0, 1);
+        Zone zone3 = new Zone(polygon3, 0, 2);
+        Zone zone4 = new Zone(polygon4, 0, 3);
+        Zone zone5 = new Zone(polygon5, 0, 4);
+        Zone zone6 = new Zone(polygon6, 0, 5);
+        Zone zone7 = new Zone(polygon7, 0, 6);
+        Zone zone8 = new Zone(polygon8, 0, 7);
+        Zone zone9 = new Zone(polygon9, 0, 8);
+        Zone zone10 = new Zone(polygon10, 0, 9);
+
+        zones = new Zone[10];
+
+        zones[0] = zone1;
+        zones[1] = zone2;
+        zones[2] = zone3;
+        zones[3] = zone4;
+        zones[4] = zone5;
+        zones[5] = zone6;
+        zones[6] = zone7;
+        zones[7] = zone8;
+        zones[8] = zone9;
+        zones[9] = zone10;
+
+        dbRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists())
+                    maxId = (dataSnapshot.getChildrenCount());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        //  for(int i = 0; i < 10; i++){
+        //    dbRef.child(String.valueOf(maxId + i)).setValue(zones[i]);
+        //}
+
+        zones[3].polygon.setFillColor(Color.argb(255,255,255,10));
+        dbRef.child(String.valueOf(zones[3].id)).setValue(zones[3]);
+
+
+
+
 
     }
 
