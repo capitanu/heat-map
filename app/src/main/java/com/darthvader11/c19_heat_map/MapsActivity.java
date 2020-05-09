@@ -15,7 +15,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
-
+import com.google.maps.android.PolyUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -34,11 +34,15 @@ import com.google.android.gms.maps.model.PolygonOptions;
 
 
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback/* GoogleMap.OnMapLongClickListener,
         GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener*/ {
 
     private GoogleMap mMap;
+    List<Polygon> polyList = new ArrayList<>();
+
 
     private FirebaseDatabase fbdb;
     private DatabaseReference dbRef;
@@ -52,7 +56,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Polygon polygon;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,23 +66,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
 
-        Toast.makeText(this,"Firebase connection success", Toast.LENGTH_LONG).show();
-        fbdb = FirebaseDatabase.getInstance();
-        dbRef = fbdb.getReference("message");
-        dbRef.setValue("Hello World!");
-        dbRef.setValue("whatever");
+        Toast.makeText(this, "Firebase connection success", Toast.LENGTH_LONG).show();
+        //fbdb = FirebaseDatabase.getInstance();
+        // dbRef = fbdb.getReference("message");
+        //dbRef.setValue("Hello World!");
+      //   dbRef.setValue("whatever");
         instance = this;
 
-      //  mMap.setMyLocationEnabled(true);
+        //  mMap.setMyLocationEnabled(true);
 //        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 //        mMap.setOnMapClickListener(this);
-  //      mMap.setOnMapLongClickListener(this);
-       // mMap.setOnMarkerClickListener(this);
-   //     markerClicked = false;
+        //      mMap.setOnMapLongClickListener(this);
+        // mMap.setOnMarkerClickListener(this);
+        //     markerClicked = false;
 
     }
-
-
 
 
     @Override
@@ -96,12 +97,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         criteria = new Criteria();
 
         if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)){
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            }else{
+            } else {
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             }
@@ -111,8 +112,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setMyLocationEnabled(true);
 
         location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
-        if (location != null)
-        {
+        if (location != null) {
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
 
             CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -128,7 +128,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         std.execute();
 
         PolygonOptions rectOptions1 = new PolygonOptions()
-                .add(new LatLng(44.429015,  26.103404),
+                .add(new LatLng(44.429015, 26.103404),
                         new LatLng(44.429730, 26.099163),
                         new LatLng(44.430022, 26.096822),
                         new LatLng(44.431985, 26.097231),
@@ -136,7 +136,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         new LatLng(44.435277, 26.102237),
                         new LatLng(44.433718, 26.102897),
                         new LatLng(44.431756, 26.103338),
-                        new LatLng(44.429015,  26.103404))
+                        new LatLng(44.429015, 26.103404))
                 .fillColor(Color.argb(50, 255, 0, 0))
                 .strokeWidth(0);
 
@@ -196,14 +196,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .fillColor(Color.argb(50, 0, 255, 0))
                 .strokeWidth(0);
 
-        PolygonOptions rectOptions7 = new PolygonOptions()
+        /*PolygonOptions rectOptions7 = new PolygonOptions()
                 .add(new LatLng(44.440781, 26.099461),
                         new LatLng(44.440054, 26.096653),
                         new LatLng(44.445429, 26.091161),
                         new LatLng(44.446729, 26.096375),
                         new LatLng(44.440781, 26.099461))
                 .fillColor(Color.argb(50, 255, 207 , 0))
-                .strokeWidth(0);
+                .strokeWidth(0);*/
 
         PolygonOptions rectOptions8 = new PolygonOptions()
                 .add(new LatLng(44.440803, 26.095326),
@@ -221,20 +221,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .add(new LatLng(44.434680, 26.089621),
                         new LatLng(44.434575, 26.084475),
                         new LatLng(44.439962, 26.081911),
-                        new LatLng(44.440067, 26.084696) ,
+                        new LatLng(44.440067, 26.084696),
                         new LatLng(44.439948, 26.086559),
                         new LatLng(44.434680, 26.089621))
                 .fillColor(Color.argb(50, 0, 255, 0))
                 .strokeWidth(0);
 
-        PolygonOptions rectOptions10 = new PolygonOptions()
+       /* PolygonOptions rectOptions10 = new PolygonOptions()
                 .add(new LatLng(44.433627, 26.089510),
                         new LatLng(44.433943, 26.084475),
                         new LatLng(44.434417, 26.084493),
                         new LatLng(44.434522, 26.089676) ,
                         new LatLng(44.433627, 26.089510))
                 .fillColor(Color.argb(50, 255, 207, 0))
-                .strokeWidth(0);
+                .strokeWidth(0)*/
+        ;
 
 // Get back the mutable Polygon
         Polygon polygon1 = mMap.addPolygon(rectOptions1);
@@ -243,32 +244,78 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Polygon polygon4 = mMap.addPolygon(rectOptions4);
         Polygon polygon5 = mMap.addPolygon(rectOptions5);
         Polygon polygon6 = mMap.addPolygon(rectOptions6);
-        Polygon polygon7 = mMap.addPolygon(rectOptions7);
+        // Polygon polygon7 = mMap.addPolygon(rectOptions7);
         Polygon polygon8 = mMap.addPolygon(rectOptions8);
         Polygon polygon9 = mMap.addPolygon(rectOptions9);
-        Polygon polygon10 = mMap.addPolygon(rectOptions10);
-
-    }
+        //  Polygon polygon10 = mMap.addPolygon(rectOptions10);
 
 
+        List<LatLng> newPolygon = new ArrayList<>();
+        newPolygon.add(new LatLng(44.433627, 26.089510));
+        newPolygon.add(new LatLng(44.433943, 26.084475));
+        newPolygon.add(new LatLng(44.434522, 26.089676));
+        newPolygon.add(new LatLng(44.434522, 26.089676));
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                           int[] grantResults){
-        switch (requestCode){
-            case 1: {
-                if (grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    if (ContextCompat.checkSelfPermission(this,
-                            Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED){
-                        Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show();
-                    }
-                }else{
-                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
-                }
-                return;
+        List<LatLng> newPolygon2 = new ArrayList<>();
+        newPolygon2.add(new LatLng(44.440781, 26.099461));
+        newPolygon2.add(new LatLng(44.440054, 26.096653));
+        newPolygon2.add(new LatLng(44.445429, 26.091161));
+        newPolygon2.add(new LatLng(44.446729, 26.096375));
+
+        Polygon p = mMap.addPolygon(new PolygonOptions()
+                .addAll(newPolygon)
+                .strokeColor(Color.RED)
+                .fillColor(Color.BLUE));
+
+        Polygon p2 = mMap.addPolygon(new PolygonOptions()
+                .addAll(newPolygon2)
+                .strokeColor(Color.RED)
+                .fillColor(Color.BLUE));
+
+
+       /* polyList.add(polygon1);
+        polyList.add(polygon2);
+        polyList.add(polygon3);
+        polyList.add(polygon4);
+        polyList.add(polygon5);
+        polyList.add(polygon6);
+        polyList.add(polygon7);
+        polyList.add(polygon8);
+        polyList.add(polygon9);
+        polyList.add(polygon10);*/
+
+        polyList.add(p);
+        polyList.add(p2);
+        for (Polygon pObj : polyList) {
+            //find Polygon user tapped inside of
+            if (PolyUtil.containsLocation(new LatLng(location.getLatitude(), location.getLongitude()), pObj.getPoints(), true)) {
+                //first case, no Marker
+                Toast.makeText(this,
+                        "you are not inside", Toast.LENGTH_LONG).show();
             }
+
+
         }
     }
+
+
+        @Override
+        public void onRequestPermissionsResult ( int requestCode, String[] permissions,
+        int[] grantResults){
+            switch (requestCode) {
+                case 1: {
+                    if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        if (ContextCompat.checkSelfPermission(this,
+                                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                            Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+                    }
+                    return;
+                }
+            }
+        }
 
 
    /* @Override
@@ -319,4 +366,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return true;
     }*/
 
-}
+    }
+
