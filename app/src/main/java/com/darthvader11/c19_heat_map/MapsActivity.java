@@ -202,7 +202,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Polygon p1 = mMap.addPolygon(new PolygonOptions()
                 .addAll(newPolygon1)
                 .strokeWidth(0)
-                .fillColor(Color.argb(50, 0, 250, 0)));
+                .fillColor(Color.argb(70, 255, 0, 0)));
 
         Polygon p2 = mMap.addPolygon(new PolygonOptions()
                 .addAll(newPolygon2)
@@ -222,12 +222,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Polygon p5 = mMap.addPolygon(new PolygonOptions()
                 .addAll(newPolygon5)
                 .strokeWidth(0)
-                .fillColor(Color.argb(50, 0, 250, 0)));
+                .fillColor(Color.argb(80, 255, 75, 0)));
 
         Polygon p6 = mMap.addPolygon(new PolygonOptions()
                 .addAll(newPolygon6)
                 .strokeWidth(0)
-                .fillColor(Color.argb(50, 0, 250, 0)));
+                .fillColor(Color.argb(80, 255, 75, 0)));
 
         Polygon p7= mMap.addPolygon(new PolygonOptions()
                 .addAll(newPolygon7)
