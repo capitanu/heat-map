@@ -5,12 +5,10 @@ import com.google.android.gms.maps.model.Polygon;
 import java.security.Policy;
 
 public class Zone {
-    public int id;
     public Polygon polygon;
     public int users;
-    public Zone(Polygon _polygon, int _users, int _id){
+    public Zone(Polygon _polygon, int _users){
         this.polygon = _polygon;
         this.users = _users;
-        this.id = _id;
     }
 }

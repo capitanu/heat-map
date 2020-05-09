@@ -6,16 +6,19 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.maps.android.PolyUtil;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -43,9 +46,8 @@ public class SendToDatabase extends AsyncTask {
         reff.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                MapsActivity.instance.zones[3].polygon = (Polygon) dataSnapshot.child("polygon").getValue();
+                //MapsActivity.instance.zones[3].polygon = (Polygon) dataSnapshot.child("polygon").getValue();
                 //MapsActivity.instance.mMap.addPolygon(MapsActivity.instance.zones[3].polygon);
-                MapsActivity.instance.zones[3].polygon.
             }
 
             @Override
@@ -55,6 +57,7 @@ public class SendToDatabase extends AsyncTask {
         });
         while(isRunning){ // isRunning is a boolean variable
             SystemClock.sleep(2000);
+
             update();
         }
     }
