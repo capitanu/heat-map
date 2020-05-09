@@ -3,6 +3,7 @@ package com.darthvader11.c19_heat_map;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.util.Log;
@@ -39,13 +40,20 @@ public class SendToDatabase extends AsyncTask {
     }
 
     public void run(){
-        DatabaseReference reff = FirebaseDatabase.getInstance().getReference().child("Polygon").child("3");
+        DatabaseReference reff = FirebaseDatabase.getInstance().getReference().child("Polygons").child("3");
         reff.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                MapsActivity.instance.zones[3].polygon = (Polygon) dataSnapshot.child("polygon").getValue();
+                //MapsActivity.instance.zones[3].polygon.setFillColor((int) dataSnapshot.child("polygon").child("fillColor").getValue());
                 //MapsActivity.instance.mMap.addPolygon(MapsActivity.instance.zones[3].polygon);
-                MapsActivity.instance.zones[3].polygon.
+                //Log.isLoggable("polygonColor", MapsActivity.instance.zones[3].polygon.getFillColor());
+                //long test = (long) dataSnapshot.child("polygon").child("fillColor").getValue();
+                MapsActivity.instance.zones[3].color = dataSnapshot.child("color").getValue(Integer.class);
+                if(MapsActivity.instance.zones[3].color == 2){
+                    MapsActivity.instance.zones[3].polygon.setFillColor(255);
+                }
+                MapsActivity.instance.zones[3].polygon.setFillColor(dataSnapshot.child("polygon").child("fillColor").getValue(Integer.class));
+                //Log.v("teeest", String.valueOf(test));
             }
 
             @Override

@@ -251,16 +251,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Polygon polygon9 = mMap.addPolygon(rectOptions9);
         Polygon polygon10 = mMap.addPolygon(rectOptions10);
 
-        Zone zone1 = new Zone(polygon1, 0, 0);
-        Zone zone2 = new Zone(polygon2, 0, 1);
-        Zone zone3 = new Zone(polygon3, 0, 2);
-        Zone zone4 = new Zone(polygon4, 0, 3);
-        Zone zone5 = new Zone(polygon5, 0, 4);
-        Zone zone6 = new Zone(polygon6, 0, 5);
-        Zone zone7 = new Zone(polygon7, 0, 6);
-        Zone zone8 = new Zone(polygon8, 0, 7);
-        Zone zone9 = new Zone(polygon9, 0, 8);
-        Zone zone10 = new Zone(polygon10, 0, 9);
+        Zone zone1 = new Zone(polygon1, 0, 0, 1);
+        Zone zone2 = new Zone(polygon2, 0, 1, 1);
+        Zone zone3 = new Zone(polygon3, 0, 2, 1);
+        Zone zone4 = new Zone(polygon4, 0, 3, 1);
+        Zone zone5 = new Zone(polygon5, 0, 4, 1);
+        Zone zone6 = new Zone(polygon6, 0, 5, 1);
+        Zone zone7 = new Zone(polygon7, 0, 6, 1);
+        Zone zone8 = new Zone(polygon8, 0, 7, 1);
+        Zone zone9 = new Zone(polygon9, 0, 8, 1);
+        Zone zone10 = new Zone(polygon10, 0, 9, 1);
 
         zones = new Zone[10];
 
@@ -288,13 +288,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        //  for(int i = 0; i < 10; i++){
-        //    dbRef.child(String.valueOf(maxId + i)).setValue(zones[i]);
+          //for(int i = 0; i < 10; i++){
+         //  dbRef.child(String.valueOf(maxId + i)).setValue(zones[i]);
         //}
-
-        zones[3].polygon.setFillColor(Color.argb(255,255,255,10));
-        dbRef.child(String.valueOf(zones[3].id)).setValue(zones[3]);
-
+        //zones[3].polygon.setFillColor(Color.argb(250 ,255,207,10));
+        //dbRef.child(String.valueOf(zones[3].id)).child("polygon").setValue(zones[3].polygon);
+        //dbRef.child("3").setValue(zones[3]);
 
 
 
