@@ -45,7 +45,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        mMap.setMyLocationEnabled(true);
+
 
         // Add a marker in Sydney and move the camera
         LatLng bucharest = new LatLng(44.426972, 26.102528);
@@ -66,6 +66,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             }
         }
+
+        mMap.setMyLocationEnabled(true);
 
         Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
         if (location != null)
