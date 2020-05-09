@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "659978148198-86mkfnk9st8o8t66dqgo6s0dnkgijsog.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.darthvader11.c19_heat_map",
+            "certificate_hash": "ac8570c735496d97e8f32a6240b7666e47a216ba"
+          }
+        },
+        {
           "client_id": "659978148198-7bpdjds3vjmf2ded9alkuld5ro42a1cn.apps.googleusercontent.com",
           "client_type": 3
         }
