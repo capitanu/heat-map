@@ -2,16 +2,21 @@ package com.darthvader11.c19_heat_map;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -51,6 +56,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public LocationManager locationManager;
     public Criteria criteria;
     public long maxId = 0;
+    public String CHANNEL_ID = "test";
 
 
     @Override
@@ -262,9 +268,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         polyList.add(new Zone(p9, 0));
         polyList.add(new Zone(p10, 0));
 
+        String textTitle = "Red zone";
+        String textContent = "fuck this";
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.notification_icon)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        createNotificationChannel();
         for (Zone pObj : MapsActivity.instance.polyList) {
             if (PolyUtil.containsLocation(new LatLng(MapsActivity.instance.location.getLatitude(), MapsActivity.instance.location.getLongitude()), pObj.polygon.getPoints(), true)) {
-                Toast.makeText(MapsActivity.instance, "you are not inside", Toast.LENGTH_LONG).show();
+
+                if(pObj.polygon.getFillColor() == Color.argb(70, 255, 0, 0)){
+                    builder.setContentTitle("Extremely high risk zone!");
+                    builder.setContentText("We would recommend you move out of this area, as it is crowded currently.");
+                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+                    // notificationId is a unique int for each notification that you must define
+                    notificationManager.notify(1, builder.build());
+                }
+                if(pObj.polygon.getFillColor() == Color.argb(80, 255, 75, 0)){
+                    builder.setContentTitle("High risk zone!");
+                    builder.setContentText("We would recommend you move out of this area, as it is crowded currently.");
+                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+                    // notificationId is a unique int for each notification that you must define
+                    notificationManager.notify(1, builder.build());
+                }
+
+                if(pObj.polygon.getFillColor() == Color.argb(50, 0, 250, 0)){
+                    pObj.polygon.setFillColor(Color.argb(50, 255, 207, 0));
+                }
+
 
             }
         }
@@ -309,6 +340,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         }
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "test" ;
+                    //getString(R.string.channel_name);
+            String description = "another test";
+                    //getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
 
 
     }
