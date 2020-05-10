@@ -109,7 +109,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SendToDatabase std = new SendToDatabase();
         std.execute();
 
-        List<LatLng> newPolygon1 = new ArrayList<>();
+       /* List<LatLng> newPolygon1 = new ArrayList<>();
         newPolygon1.add(new LatLng(44.429015, 26.103404));
         newPolygon1.add (new LatLng(44.429730, 26.099163));
         newPolygon1.add  (new LatLng(44.430022, 26.096822));
@@ -249,18 +249,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .strokeWidth(0)
                 .fillColor(Color.argb(50, 255, 207, 0)));
 
-
-
-        polyList.add(new Zone(p1, 0));
-        polyList.add(new Zone(p2, 0));
-        polyList.add(new Zone(p3, 0));
+*/
+        Poly poly = new Poly();
+        for(int i = 0 ; i < Poly.listOfPolygons.size(); i++)
+            polyList.add(new Zone(Poly.listOfPolygons.get(i),0));
+        /*polyList.add(new Zone(, 0));
+        polyList.add(new Zone(p2, 0));*/
+        /*polyList.add(new Zone(p3, 0));
         polyList.add(new Zone(p4, 0));
         polyList.add(new Zone(p5, 0));
         polyList.add(new Zone(p6, 0));
         polyList.add(new Zone(p7, 0));
         polyList.add(new Zone(p8, 0));
         polyList.add(new Zone(p9, 0));
-        polyList.add(new Zone(p10, 0));
+        polyList.add(new Zone(p10, 0));*/
 
         for (Zone pObj : MapsActivity.instance.polyList) {
             if (PolyUtil.containsLocation(new LatLng(MapsActivity.instance.location.getLatitude(), MapsActivity.instance.location.getLongitude()), pObj.polygon.getPoints(), true)) {
@@ -283,10 +285,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 }
             });
-
+/*
             for(int i = 0; i < 10; i++){
                 dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
-            }
+            }*/
 
         }
 
