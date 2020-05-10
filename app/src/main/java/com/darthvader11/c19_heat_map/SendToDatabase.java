@@ -29,9 +29,11 @@ public class SendToDatabase implements Runnable {
     public boolean isRunning = true;
     public int users;
     public DatabaseReference reff;
+    public DatabaseReference reff2;
     public static int i;
     public boolean flag;
-    public static int previousZone = 100;
+    public static int previousZoneCheck = 100;
+    public static int previousZone = -1;
 
 
     @SuppressLint("MissingPermission")
@@ -41,7 +43,6 @@ public class SendToDatabase implements Runnable {
     }
 
     public void run(){
-        Log.v("threadmain", "did this");
         while(isRunning){ // isRunning is a boolean variable
             SystemClock.sleep(2000);
             checkAndUpdate();
@@ -49,38 +50,61 @@ public class SendToDatabase implements Runnable {
         }
     }
     public void checkAndUpdate(){
-        for (i = 0; i < MapsActivity.instance.polyList.size() - 1; i++) {
 
-            MapsActivity.instance.main.run();
-
+            MapsActivity.instance.semaphore = 0;
             MapsActivity.instance.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    flag = MapsActivity.instance.checkIfTrue(i);
-                    Log.i("flag", String.valueOf(flag));
+                    for (i = 0; i < MapsActivity.instance.polyList.size(); i++) {
+                        //flag = MapsActivity.instance.checkIfTrue(i);
+                        MapsActivity.instance.semaphore = 1;
+                        if (PolyUtil.containsLocation(new LatLng(MapsActivity.instance.location.getLatitude(), MapsActivity.instance.location.getLongitude()), MapsActivity.instance.polyList.get(i).polygon.getPoints(), true)) {
+                            reff = FirebaseDatabase.getInstance().getReference().child("Polygons").child(String.valueOf(SendToDatabase.i));
+                            //System.out.println("i is " + i);
+                            //System.out.println("previous thing " + previousZoneCheck);
+                            if(previousZoneCheck != i){
+                                //System.out.println("this thing happened");
+                                previousZoneCheck = i;
+                                reff2 = FirebaseDatabase.getInstance().getReference().child("Polygons").child(String.valueOf(SendToDatabase.previousZone));
+                                reff.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        int users = dataSnapshot.child("users").getValue(Integer.class);
+                                        users++;
+                                        System.out.println(users);
+                                        reff.child("users").setValue(users);
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
+
+                                if(previousZone != -1)
+                                reff2.addListenerForSingleValueEvent(new ValueEventListener() {
+                                  @Override
+                                  public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                       int users = dataSnapshot.child("users").getValue(Integer.class);
+                                       System.out.println(users);
+                                        users--;
+                                        reff2.child("users").setValue(users);
+                                 }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+                                previousZone = i;
+                            }
+                        }
+                    }
                 }
             });
-            Log.v("gothere", "gothere");
-            if(flag){
-                Log.v("message", "did it");
-                reff = FirebaseDatabase.getInstance().getReference().child("Polygons");
-                reff.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if(i != previousZone){
-                            int users = dataSnapshot.child(String.valueOf(i)).child("users").getValue(Integer.class);
-                            users++;
-                            reff.child(String.valueOf(i)).child("users").setValue(users);
-                            previousZone = i;
-                    }}
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                    }
-                });
-            }
-        }
     }
-
 }
+
+

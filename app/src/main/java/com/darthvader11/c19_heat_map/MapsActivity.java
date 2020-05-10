@@ -54,6 +54,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public long maxId = 0;
     public int i;
     public Thread main;
+    public int semaphore = 0;
 
 
     @Override
@@ -81,7 +82,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng bucharest = new LatLng(44.426972, 26.102528);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(bucharest));
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
         criteria = new Criteria();
 
         if (ContextCompat.checkSelfPermission(this,
@@ -95,11 +96,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             }
         }
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         mMap.setMyLocationEnabled(true);
 
-        mMap.setMyLocationEnabled(true);
 
-        location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+        location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
         if (location != null) {
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
 
@@ -111,7 +112,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
 
-        Log.v("tag", location.toString());
+      //  Log.v("tag", location.toString());
         Runnable std = new SendToDatabase();
         Thread thread = new Thread(std);
         thread.start();
@@ -269,12 +270,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         polyList.add(new Zone(p9, 0));
         polyList.add(new Zone(p10, 0));
 
-        for (Zone pObj : MapsActivity.instance.polyList) {
-            if (PolyUtil.containsLocation(new LatLng(MapsActivity.instance.location.getLatitude(), MapsActivity.instance.location.getLongitude()), pObj.polygon.getPoints(), true)) {
-                if(pObj.polygon.getFillColor() == Color.argb()
-                pObj.polygon.setFillColor(Color.argb(50, 255, 207, 0));
-            }
-        }
+        //for (Zone pObj : MapsActivity.instance.polyList) {
+          //  if (PolyUtil.containsLocation(new LatLng(MapsActivity.instance.location.getLatitude(), MapsActivity.instance.location.getLongitude()), pObj.polygon.getPoints(), true)) {
+           //     pObj.polygon.setFillColor(Color.argb(50, 255, 207, 0));
+           // }
+        //}
 
 
         dbRef.addValueEventListener(new ValueEventListener() {

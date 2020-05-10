@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">C19-Heat-Map</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_maps">C19 Heat Map</string>
 </resources>
