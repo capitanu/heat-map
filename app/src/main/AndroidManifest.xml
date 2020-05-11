@@ -20,7 +20,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <service android:name=".BackgroundService"/>
+        <service android:name=".BackgroundService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="location"
+            />
 
 
         <!--
@@ -45,11 +49,6 @@
             </intent-filter>
 
         </activity>
-        <receiver android:name=".FloatingViewService$Receiver">
-            <intent-filter>
-                <action android:name="quit_action" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

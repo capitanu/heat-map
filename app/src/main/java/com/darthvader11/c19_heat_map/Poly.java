@@ -119,12 +119,7 @@ public class Poly {
 
 
 
-       for(int i = 0 ; i < listOfpoints.size(); i++){
-           listOfPolygons.add( MapsActivity.instance.mMap.addPolygon(new PolygonOptions()
-                   .addAll(listOfpoints.get(i))
-                   .strokeWidth(0)
-                   .fillColor(Color.argb(50, 0, 250, 0))) );
-        }
+
 
     }
 

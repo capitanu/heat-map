@@ -8,8 +8,11 @@ import androidx.fragment.app.FragmentActivity;
 import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
@@ -17,7 +20,10 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
+import android.util.EventLog;
 import android.util.Log;
 import android.widget.Toast;
 import com.google.maps.android.PolyUtil;
@@ -39,13 +45,23 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.firebase.database.ValueEventListener;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, SharedPreferences.OnSharedPreferenceChangeListener {
 
     public GoogleMap mMap;
     public ArrayList<Zone> polyList = new ArrayList<>();
@@ -60,7 +76,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public int previousZone = -1;
     public Thread main;
     public int semaphore = 0;
+    BackgroundService mService = null;
+    boolean mBound = false;
 
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            BackgroundService.LocalBinder binder = (BackgroundService.LocalBinder)service;
+            mService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mService = null;
+            mBound = false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,10 +107,54 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         instance = this;
         main = Thread.currentThread();
 
+        Dexter.withActivity(this)
+                .withPermissions(Arrays.asList(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                ))
+                .withListener(new MultiplePermissionsListener(){
+
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
+
+                        bindService(new Intent(MapsActivity.this, BackgroundService.class),
+                                mServiceConnection,
+                                Context.BIND_AUTO_CREATE);
+                        if(mService != null)
+                            mService.requestLocationUpdates();
+
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
+
+                    }
+                }).check();
+
 
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this);
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        if(mBound) {
+            unbindService(mServiceConnection);
+            mBound = false;
+        }
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -87,7 +163,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng bucharest = new LatLng(44.426972, 26.102528);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(bucharest));
 
-
+/*
         criteria = new Criteria();
 
         if (ContextCompat.checkSelfPermission(this,
@@ -116,8 +192,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
 
-        startService(new Intent(this, BackgroundService.class));
+*/
+
         Poly poly = new Poly();
+
+        for(int i = 0 ; i < Poly.listOfpoints.size(); i++){
+            Poly.listOfPolygons.add( MapsActivity.instance.mMap.addPolygon(new PolygonOptions()
+                    .addAll(Poly.listOfpoints.get(i))
+                    .strokeWidth(0)
+                    .fillColor(Color.argb(50, 0, 250, 0))) );
+        }
         for(int i = 0 ; i < Poly.listOfPolygons.size(); i++)
             polyList.add(new Zone(Poly.listOfPolygons.get(i),0));
 
@@ -153,7 +237,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-
+/*
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
@@ -172,6 +256,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+ */
+
     public void sendYellowNotification(){
         NotificationCompat.Builder builder = new NotificationCompat.Builder(MapsActivity.instance, MapsActivity.instance.CHANNEL_ID)
                 .setSmallIcon(R.drawable.notification_icon)
@@ -184,7 +270,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         notificationManager.notify(1, builder.build());
     }
 
-
     public void sendRedNotification(){
         NotificationCompat.Builder builder = new NotificationCompat.Builder(MapsActivity.instance, MapsActivity.instance.CHANNEL_ID)
                 .setSmallIcon(R.drawable.notification_icon)
@@ -196,8 +281,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // notificationId is a unique int for each notification that you must define
         notificationManager.notify(1, builder.build());
     }
-
-
 
     public void createNotificationChannel(){
         // Create the NotificationChannel, but only on API 26+ because
@@ -217,15 +300,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-
-    public boolean checkIfTrue(int i){
-        Log.v("checkiftrue", "yyeye");
-        return PolyUtil.containsLocation(new LatLng(MapsActivity.instance.location.getLatitude(), MapsActivity.instance.location.getLongitude()), MapsActivity.instance.polyList.get(i).polygon.getPoints(), true);
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if(key.equals(Common.KEY_REQUESTING_LOCATION_UPDATES)){
+            setButtonState(sharedPreferences.getBoolean(Common.KEY_REQUESTING_LOCATION_UPDATES, false));
+        }
     }
 
+    private void setButtonState(boolean aBoolean) {
+        if(aBoolean){
+            //requestLocation.setEnabled(false);
+            //
+        }
+    }
 
-
-
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onListenLocation(SendLocationToActivity event){
+        if(event != null){
+            String data = new StringBuilder()
+                    .append(event.getLocation().getLatitude())
+                    .append("/")
+                    .append(event.getLocation().getLongitude())
+                    .toString();
+            Toast.makeText(mService, data, Toast.LENGTH_SHORT).show();
+        }
+    }
 }
 
 
