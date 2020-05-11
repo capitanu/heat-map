@@ -37,7 +37,6 @@ public class SendToDatabase implements Runnable {
     public String CHANNEL_ID = "Warning";
 
     public boolean isRunning = true;
-    public int users;
     public DatabaseReference reff;
     public static int i;
     public static int previousZoneCheck = 100;
@@ -77,12 +76,11 @@ public class SendToDatabase implements Runnable {
     }
     public void checkAndUpdate(){
 
-            MapsActivity.instance.semaphore = 0;
+
             MapsActivity.instance.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     for (i = 0; i < MapsActivity.instance.polyList.size(); i++) {
-                        MapsActivity.instance.semaphore = 1;
                         try {
                             if (PolyUtil.containsLocation(new LatLng(MapsActivity.instance.location.getLatitude(), MapsActivity.instance.location.getLongitude()), MapsActivity.instance.polyList.get(i).polygon.getPoints(), true)) {
                                 //reff = reff.child(String.valueOf(SendToDatabase.i));

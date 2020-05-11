@@ -4,12 +4,28 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+
+import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.maps.android.PolyUtil;
+
+import static android.app.Notification.EXTRA_NOTIFICATION_ID;
 
 public class BackgroundService  extends Service {
 
@@ -35,22 +51,69 @@ public class BackgroundService  extends Service {
         }
 
         private void startForeground() {
-            Intent notificationIntent = new Intent(this, MapsActivity.class);
 
+
+
+            Intent intent = new Intent("close_app");
+            PendingIntent pIntent = PendingIntent.getBroadcast(this, (int)
+                    System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
             createNotificationChannel();
-
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-                    notificationIntent, 0);
-
             startForeground(NOTIF_ID, new NotificationCompat.Builder(this,
                     NOTIF_CHANNEL_ID) // don't forget create a notification channel first
                     .setOngoing(true)
                     .setSmallIcon(R.drawable.notification_icon)
                     .setContentTitle(getString(R.string.app_name))
                     .setContentText("Service is running background")
-                    .setContentIntent(pendingIntent)
+                    .addAction(R.drawable.notification_icon,  "exit", pIntent)
+                    .setContentIntent(pIntent)
                     .build());
+
+            IntentFilter filter = new IntentFilter();
+            filter.addAction("close_app");
+            registerReceiver(mReceiver, filter);
+
         }
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("TAG123" ,"onReceive ");
+            finish();
+        }
+    };
+        public int i;
+        public DatabaseReference reff;
+        public void finish(){
+            reff = FirebaseDatabase.getInstance().getReference().child("Polygons");
+            for (i = 0; i < MapsActivity.instance.polyList.size(); i++) {
+                try {
+                    if (PolyUtil.containsLocation(new LatLng(MapsActivity.instance.location.getLatitude(), MapsActivity.instance.location.getLongitude()), MapsActivity.instance.polyList.get(i).polygon.getPoints(), true)) {
+                            MapsActivity.instance.i = i;
+                            reff.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    int users2 = 0;
+                                    Log.v("THISSHOULDHAPPEN", "This happened");
+                                    users2 = dataSnapshot.child(String.valueOf(MapsActivity.instance.i)).child("users").getValue(Integer.class);
+                                    users2--;
+                                    reff.child(String.valueOf(MapsActivity.instance.i)).child("users").setValue(users2);
+                                    MapsActivity.instance.previousZone = MapsActivity.instance.i;
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+
+                        }
+                    }
+                    catch(Exception e){ e.printStackTrace(); }
+                }
+            this.stopSelf();
+            }
+
+
+
 
     private void createNotificationChannel(){
         // Create the NotificationChannel, but only on API 26+ because
@@ -69,4 +132,5 @@ public class BackgroundService  extends Service {
             notificationManager.createNotificationChannel(channel);
         }
     }
+
 }
