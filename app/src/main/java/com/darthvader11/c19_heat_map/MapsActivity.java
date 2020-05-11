@@ -60,6 +60,7 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -78,13 +79,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public int semaphore = 0;
     BackgroundService mService = null;
     boolean mBound = false;
-
+    boolean once = true;
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.i("CCDev", "onserviceconnectd");
             BackgroundService.LocalBinder binder = (BackgroundService.LocalBinder)service;
             mService = binder.getService();
             mBound = true;
+            mService.requestLocationUpdates();
         }
 
         @Override
@@ -94,8 +97,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     };
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -107,7 +113,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         instance = this;
         main = Thread.currentThread();
 
-        Dexter.withActivity(this)
+        Dexter.withContext(this)
                 .withPermissions(Arrays.asList(
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_BACKGROUND_LOCATION,
@@ -121,9 +127,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         bindService(new Intent(MapsActivity.this, BackgroundService.class),
                                 mServiceConnection,
                                 Context.BIND_AUTO_CREATE);
-                        if(mService != null)
-                            mService.requestLocationUpdates();
-
+                        Log.v("this","happenede");
+                        //mService.requestLocationUpdates();
                     }
 
                     @Override
@@ -162,6 +167,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         LatLng bucharest = new LatLng(44.426972, 26.102528);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(bucharest));
+        mMap.setMyLocationEnabled(true);
+
+
 
 /*
         criteria = new Criteria();
@@ -178,7 +186,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        mMap.setMyLocationEnabled(true);
+
 
 
         location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
@@ -195,16 +203,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 */
 
         Poly poly = new Poly();
-
-        for(int i = 0 ; i < Poly.listOfpoints.size(); i++){
-            Poly.listOfPolygons.add( MapsActivity.instance.mMap.addPolygon(new PolygonOptions()
-                    .addAll(Poly.listOfpoints.get(i))
-                    .strokeWidth(0)
-                    .fillColor(Color.argb(50, 0, 250, 0))) );
-        }
-        for(int i = 0 ; i < Poly.listOfPolygons.size(); i++)
-            polyList.add(new Zone(Poly.listOfPolygons.get(i),0));
-
+        poly.instantiate();
+        for (int i = 0; i < Poly.listOfpoints.size(); i++) {
+                Poly.listOfPolygons.add(MapsActivity.instance.mMap.addPolygon(new PolygonOptions()
+                        .addAll(Poly.listOfpoints.get(i))
+                        .strokeWidth(0)
+                        .fillColor(Color.argb(50, 0, 250, 0))));
+            }
+            for (int i = 0; i < Poly.listOfPolygons.size(); i++)
+                polyList.add(new Zone(Poly.listOfPolygons.get(i), 0));
 
 
         dbRef.addValueEventListener(new ValueEventListener() {
@@ -233,7 +240,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
         }
 
-
+        if(mService != null){
+            Log.i("ATLEASTHERE", "pls");
+        }
 
     }
 
@@ -323,6 +332,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .append(event.getLocation().getLongitude())
                     .toString();
             Toast.makeText(mService, data, Toast.LENGTH_SHORT).show();
+            location = event.getLocation();
+            if(once == true) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
+
+                CameraPosition cameraPosition = new CameraPosition.Builder()
+                        .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
+                        .zoom(15)                   // Sets the zoom
+                        .build();                   // Creates a CameraPosition from the builder
+                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                once = false;
+            }
         }
     }
 }
