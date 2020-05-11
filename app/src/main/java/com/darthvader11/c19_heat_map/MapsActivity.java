@@ -9,6 +9,7 @@ import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
@@ -47,7 +48,7 @@ import java.util.List;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     public GoogleMap mMap;
-    public List<Zone> polyList = new ArrayList<>();
+    public ArrayList<Zone> polyList = new ArrayList<>();
     private DatabaseReference dbRef;
     public Location location;
     public static MapsActivity instance;
@@ -56,6 +57,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public long maxId = 0;
     public String CHANNEL_ID = "test";
     public int i;
+    public int previousZone = -1;
     public Thread main;
     public int semaphore = 0;
 
@@ -116,9 +118,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
       //  Log.v("tag", location.toString());
-        Runnable std = new SendToDatabase();
-        Thread thread = new Thread(std);
-        thread.start();
+        startService(new Intent(this, BackgroundService.class));
+
 
 
         List<LatLng> newPolygon1 = new ArrayList<>();
@@ -274,7 +275,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         polyList.add(new Zone(p10, 0));
 
 
-        String textTitle = "Red zone";
+        /*String textTitle = "Red zone";
         String textContent = "fuck this";
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.notification_icon)
@@ -305,7 +306,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         }
-
+*/
 
 
 
@@ -322,6 +323,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        //dbRef.setValue(polyList);
         for(int i = 0; i < 10; i++){
             dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
         }
@@ -349,13 +351,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    private void createNotificationChannel(){
+    public void sendYellowNotification(){
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(MapsActivity.instance, MapsActivity.instance.CHANNEL_ID)
+                .setSmallIcon(R.drawable.notification_icon)
+                .setPriority(NotificationCompat.PRIORITY_HIGH);
+        createNotificationChannel();
+        builder.setContentTitle("Moderate risk zone!");
+        builder.setContentText("Avoid contact with crowded areas");
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MapsActivity.instance);
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(1, builder.build());
+    }
+
+
+    public void sendRedNotification(){
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(MapsActivity.instance, MapsActivity.instance.CHANNEL_ID)
+                .setSmallIcon(R.drawable.notification_icon)
+                .setPriority(NotificationCompat.PRIORITY_HIGH);
+        createNotificationChannel();
+        builder.setContentTitle("Extremely high risk zone!");
+        builder.setContentText("It is highly advised you keep distance");
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MapsActivity.instance);
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(1, builder.build());
+    }
+
+
+
+    public void createNotificationChannel(){
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "test" ;
+            CharSequence name = "test1" ;
                     //getString(R.string.channel_name);
-            String description = "another test";
+            String description = "another test1";
                     //getString(R.string.channel_description);
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
