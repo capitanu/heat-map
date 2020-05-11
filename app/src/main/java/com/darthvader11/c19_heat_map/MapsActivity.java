@@ -136,14 +136,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
-            /*
+        /*
             for(int i = 0; i < 10; i++){
                 dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
-            }*/
+            }
+
+         */
 
 
         //dbRef.setValue(polyList);
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < polyList.size(); i++){
             dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
         }
 
