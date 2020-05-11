@@ -10,13 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Poly {
-    public static ArrayList<ArrayList<LatLng>> listOfpoints = new ArrayList<>(10);
+    public static ArrayList<ArrayList<LatLng>> listOfpoints = new ArrayList<>(12);
     public static List<Polygon> listOfPolygons = new ArrayList<>(listOfpoints.size());
    // public List<LatLng> polygon1 = new ArrayList<>();
   //  public List<LatLng> polygon2 = new ArrayList<>();
     public Poly(){
 
-        for ( int i= 0 ; i < 10; i++ ){
+        for ( int i= 0 ; i < 12; i++ ){
             listOfpoints.add(new ArrayList<LatLng>());
         }
 
@@ -106,6 +106,17 @@ public class Poly {
         listOfpoints.get(9).add(new LatLng(44.434417, 26.084493));
         listOfpoints.get(9).add(new LatLng(44.434522, 26.089676));
         listOfpoints.get(9).add(new LatLng(44.433627, 26.089510));
+
+        //Stockholm
+        listOfpoints.get(10).add(new LatLng(59.339281, 18.005316));
+        listOfpoints.get(10).add(new LatLng(59.263986, 18.253591));
+        listOfpoints.get(10).add(new LatLng(59.260869, 17.878596));
+
+        //Stockholm
+        listOfpoints.get(11).add(new LatLng(59.342841, 18.040179));
+        listOfpoints.get(11).add(new LatLng(59.355275, 17.884694));
+        listOfpoints.get(11).add(new LatLng(59.423065, 18.075748));
+
 
 
        for(int i = 0 ; i < listOfpoints.size(); i++){
