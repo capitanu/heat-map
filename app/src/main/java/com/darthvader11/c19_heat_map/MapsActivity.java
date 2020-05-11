@@ -205,6 +205,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Poly poly = new Poly();
         poly.instantiate();
         for (int i = 0; i < Poly.listOfpoints.size(); i++) {
+            //FIX BUG
                 Poly.listOfPolygons.add(MapsActivity.instance.mMap.addPolygon(new PolygonOptions()
                         .addAll(Poly.listOfpoints.get(i))
                         .strokeWidth(0)
@@ -269,7 +270,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void sendYellowNotification(){
         NotificationCompat.Builder builder = new NotificationCompat.Builder(MapsActivity.instance, MapsActivity.instance.CHANNEL_ID)
-                .setSmallIcon(R.drawable.notification_icon)
+                .setSmallIcon(R.drawable.ic_stat_name)
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
         createNotificationChannel();
         builder.setContentTitle("Moderate risk zone!");
@@ -281,7 +282,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void sendRedNotification(){
         NotificationCompat.Builder builder = new NotificationCompat.Builder(MapsActivity.instance, MapsActivity.instance.CHANNEL_ID)
-                .setSmallIcon(R.drawable.notification_icon)
+                .setSmallIcon(R.drawable.ic_stat_name)
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
         createNotificationChannel();
         builder.setContentTitle("Extremely high risk zone!");
@@ -331,7 +332,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .append("/")
                     .append(event.getLocation().getLongitude())
                     .toString();
-            Toast.makeText(mService, data, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(mService, data, Toast.LENGTH_SHORT).show();
             location = event.getLocation();
             if(once == true) {
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
@@ -345,6 +346,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     }
+
 }
 
 

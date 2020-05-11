@@ -116,6 +116,11 @@ public class BackgroundService  extends Service {
             mNotificationManager.createNotificationChannel(mChannel);
         }
 
+        Runnable std = new SendToDatabase();
+        Thread thread = new Thread(std);
+        thread.start();
+
+
     }
 
 
@@ -181,9 +186,9 @@ public class BackgroundService  extends Service {
 
 
             //Update notification content if running in foreground
-
-            if(serviceIsRunningInForeground(this))
-                mNotificationManager.notify(NOTIF_ID, getNotification());
+            MapsActivity.instance.location = mLocation;
+            //if(serviceIsRunningInForeground(this))
+            //    mNotificationManager.notify(NOTIF_ID, getNotification());
     }
 
     private Notification getNotification() {
@@ -198,9 +203,9 @@ public class BackgroundService  extends Service {
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .addAction(R.drawable.ic_stat_name, "Launch", activityPendingIntent)
-                    .addAction(R.drawable.ic_stat_name, "Remove", servicePendingIntent)
-                    .setContentText(text)
-                    .setContentTitle(Common.getLocationTitle(this))
+                    .addAction(R.drawable.ic_stat_name, "Exit", servicePendingIntent)
+                    .setContentText("Process running in background")
+                    .setContentTitle("Pesbai")
                     .setOngoing(true)
                     .setPriority(Notification.PRIORITY_HIGH)
                     .setSmallIcon(R.drawable.ic_stat_name)

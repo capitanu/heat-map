@@ -46,7 +46,6 @@ public class SendToDatabase implements Runnable {
 
     @SuppressLint("MissingPermission")
     public void update() {
-        MapsActivity.instance.location = MapsActivity.instance.locationManager.getLastKnownLocation(MapsActivity.instance.locationManager.getBestProvider(MapsActivity.instance.criteria, false));
         //MapsActivity.instance.test();
         reff.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -83,7 +82,6 @@ public class SendToDatabase implements Runnable {
                     for (i = 0; i < MapsActivity.instance.polyList.size(); i++) {
                         try {
                             if (PolyUtil.containsLocation(new LatLng(MapsActivity.instance.location.getLatitude(), MapsActivity.instance.location.getLongitude()), MapsActivity.instance.polyList.get(i).polygon.getPoints(), true)) {
-                                //reff = reff.child(String.valueOf(SendToDatabase.i));
                                 if (previousZoneCheck != i) {
                                     previousZoneCheck = i;
                                     MapsActivity.instance.i = i;
@@ -105,18 +103,13 @@ public class SendToDatabase implements Runnable {
                                                 reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(50, 255, 207, 0));
                                                 MapsActivity.instance.sendYellowNotification();
                                             }
-                                            int users2 = 0;
-                                            try {
-                                                users2 = dataSnapshot.child(String.valueOf(MapsActivity.instance.previousZone)).child("users").getValue(Integer.class);
-                                            }
-                                            catch (Exception e){
-
-                                            }
                                             if(MapsActivity.instance.previousZone != -1) {
+                                                Log.v("previous", String.valueOf(MapsActivity.instance.previousZone));
+                                                int users2 = dataSnapshot.child(String.valueOf(MapsActivity.instance.previousZone)).child("users").getValue(Integer.class);
                                                 users2--;
                                                 reff.child(String.valueOf(MapsActivity.instance.previousZone)).child("users").setValue(users2);
-                                                MapsActivity.instance.previousZone = MapsActivity.instance.i;
                                             }
+                                            MapsActivity.instance.previousZone = MapsActivity.instance.i;
 
                                         }
 
@@ -125,8 +118,6 @@ public class SendToDatabase implements Runnable {
 
                                         }
                                     });
-
-                                    previousZone = i;
 
                                 }
                             }
