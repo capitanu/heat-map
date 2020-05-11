@@ -12,8 +12,8 @@ import java.util.List;
 public class Poly {
     public static ArrayList<ArrayList<LatLng>> listOfpoints = new ArrayList<>(10);
     public static List<Polygon> listOfPolygons = new ArrayList<>(listOfpoints.size());
-    // public List<LatLng> polygon1 = new ArrayList<>();
-    //  public List<LatLng> polygon2 = new ArrayList<>();
+   // public List<LatLng> polygon1 = new ArrayList<>();
+  //  public List<LatLng> polygon2 = new ArrayList<>();
     public Poly(){
 
         for ( int i= 0 ; i < 10; i++ ){
@@ -108,11 +108,11 @@ public class Poly {
         listOfpoints.get(9).add(new LatLng(44.433627, 26.089510));
 
 
-        for(int i = 0 ; i < listOfpoints.size(); i++){
-            listOfPolygons.add( MapsActivity.instance.mMap.addPolygon(new PolygonOptions()
-                    .addAll(listOfpoints.get(i))
-                    .strokeWidth(0)
-                    .fillColor(Color.argb(50, 0, 250, 0))) );
+       for(int i = 0 ; i < listOfpoints.size(); i++){
+           listOfPolygons.add( MapsActivity.instance.mMap.addPolygon(new PolygonOptions()
+                   .addAll(listOfpoints.get(i))
+                   .strokeWidth(0)
+                   .fillColor(Color.argb(50, 0, 250, 0))) );
         }
 
     }

@@ -116,197 +116,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
 
-
-      //  Log.v("tag", location.toString());
         startService(new Intent(this, BackgroundService.class));
-
-
-
-        List<LatLng> newPolygon1 = new ArrayList<>();
-        newPolygon1.add(new LatLng(44.429015, 26.103404));
-        newPolygon1.add(new LatLng(44.429730, 26.099163));
-        newPolygon1.add(new LatLng(44.430022, 26.096822));
-        newPolygon1.add(new LatLng(44.431985, 26.097231));
-        newPolygon1.add(new LatLng(44.434674, 26.098453));
-        newPolygon1.add(new LatLng(44.435277, 26.102237));
-        newPolygon1.add(new LatLng(44.433718, 26.102897));
-        newPolygon1.add(new LatLng(44.431756, 26.103338));
-        newPolygon1.add(new LatLng(44.429015, 26.103404));
-
-
-        List<LatLng> newPolygon2 = new ArrayList<>();
-        newPolygon2.add(new LatLng(44.430218, 26.096541));
-        newPolygon2.add(new LatLng(44.432796, 26.093682));
-        newPolygon2.add(new LatLng(44.433431, 26.091972));
-        newPolygon2.add(new LatLng(44.433607, 26.089729));
-        newPolygon2.add(new LatLng(44.434515, 26.089893));
-        newPolygon2.add(new LatLng(44.434691, 26.098100));
-        newPolygon2.add(new LatLng(44.434105, 26.098141));
-        newPolygon2.add(new LatLng(44.431790, 26.096910));
-        newPolygon2.add(new LatLng(44.430218, 26.096541));
-
-        List<LatLng> newPolygon3 = new ArrayList<>();
-        newPolygon3.add(new LatLng(44.429970, 26.095334));
-        newPolygon3.add(new LatLng(44.430250, 26.091304));
-        newPolygon3.add(new LatLng(44.432893, 26.091529));
-        newPolygon3.add(new LatLng(44.432581, 26.092704));
-        newPolygon3.add(new LatLng(44.430168, 26.095536));
-        newPolygon3.add(new LatLng(44.429970, 26.095334));
-
-        List<LatLng> newPolygon4 = new ArrayList<>();
-        newPolygon4.add(new LatLng(44.427065, 26.100815));
-        newPolygon4.add(new LatLng(44.427393, 26.092485));
-        newPolygon4.add(new LatLng(44.428048, 26.092147));
-        newPolygon4.add(new LatLng(44.428444, 26.091151));
-        newPolygon4.add(new LatLng(44.430031, 26.091304));
-        newPolygon4.add(new LatLng(44.429757, 26.095212));
-        newPolygon4.add(new LatLng(44.429032, 26.099923));
-        newPolygon4.add(new LatLng(44.428499, 26.100939));
-        newPolygon4.add(new LatLng(44.427065, 26.100815));
-
-        List<LatLng> newPolygon5 = new ArrayList<>();
-        newPolygon5.add(new LatLng(44.435626, 26.102114));
-        newPolygon5.add(new LatLng(44.434943, 26.098288));
-        newPolygon5.add(new LatLng(44.439812, 26.096807));
-        newPolygon5.add(new LatLng(44.440517, 26.099584));
-        newPolygon5.add(new LatLng(44.435626, 26.102114));
-
-        List<LatLng> newPolygon6 = new ArrayList<>();
-        newPolygon6.add(new LatLng(44.434987, 26.097918));
-        newPolygon6.add(new LatLng(44.434701, 26.089803));
-        newPolygon6.add(new LatLng(44.439900, 26.086810));
-        newPolygon6.add(new LatLng(44.439746, 26.089155));
-        newPolygon6.add(new LatLng(44.440583, 26.095696));
-        newPolygon6.add(new LatLng(44.439305, 26.096776));
-        newPolygon6.add(new LatLng(44.434987, 26.097918));
-
-        List<LatLng> newPolygon7 = new ArrayList<>();
-        newPolygon7.add(new LatLng(44.440781, 26.099461));
-        newPolygon7.add(new LatLng(44.440054, 26.096653));
-        newPolygon7.add(new LatLng(44.445429, 26.091161));
-        newPolygon7.add(new LatLng(44.446729, 26.096375));
-
-        List<LatLng> newPolygon8 = new ArrayList<>();
-        newPolygon8.add(new LatLng(44.440803, 26.095326));
-        newPolygon8.add(new LatLng(44.440275, 26.093166));
-        newPolygon8.add(new LatLng(44.439944, 26.089278));
-        newPolygon8.add(new LatLng(44.440142, 26.081842));
-        newPolygon8.add(new LatLng(44.442566, 26.081194));
-        newPolygon8.add(new LatLng(44.443623, 26.086378));
-        newPolygon8.add(new LatLng(44.445341, 26.090914));
-        newPolygon8.add(new LatLng(44.440803, 26.095326));
-
-        List<LatLng> newPolygon9 = new ArrayList<>();
-        newPolygon9.add(new LatLng(44.434680, 26.089621));
-        newPolygon9.add(new LatLng(44.434575, 26.084475));
-        newPolygon9.add(new LatLng(44.439962, 26.081911));
-        newPolygon9.add(new LatLng(44.440067, 26.084696));
-        newPolygon9.add(new LatLng(44.439948, 26.086559));
-        newPolygon9.add(new LatLng(44.434680, 26.089621));
-
-        List<LatLng> newPolygon10 = new ArrayList<>();
-        newPolygon10.add(new LatLng(44.433627, 26.089510));
-        newPolygon10.add(new LatLng(44.433943, 26.084475));
-        newPolygon10.add(new LatLng(44.434417, 26.084493));
-        newPolygon10.add(new LatLng(44.434522, 26.089676));
-        newPolygon10.add(new LatLng(44.433627, 26.089510));
-
-
-        Polygon p1 = mMap.addPolygon(new PolygonOptions()
-                .addAll(newPolygon1)
-                .strokeWidth(0)
-                .fillColor(Color.argb(70, 255, 0, 0)));
-
-        Polygon p2 = mMap.addPolygon(new PolygonOptions()
-                .addAll(newPolygon2)
-                .strokeWidth(0)
-                .fillColor(Color.argb(50, 0, 250, 0)));
-
-        Polygon p3 = mMap.addPolygon(new PolygonOptions()
-                .addAll(newPolygon3)
-                .strokeWidth(0)
-                .fillColor(Color.argb(50, 0, 250, 0)));
-
-        Polygon p4 = mMap.addPolygon(new PolygonOptions()
-                .addAll(newPolygon4)
-                .strokeWidth(0)
-                .fillColor(Color.argb(50, 0, 250, 0)));
-
-        Polygon p5 = mMap.addPolygon(new PolygonOptions()
-                .addAll(newPolygon5)
-                .strokeWidth(0)
-                .fillColor(Color.argb(80, 255, 75, 0)));
-
-        Polygon p6 = mMap.addPolygon(new PolygonOptions()
-                .addAll(newPolygon6)
-                .strokeWidth(0)
-                .fillColor(Color.argb(80, 255, 75, 0)));
-
-        Polygon p7 = mMap.addPolygon(new PolygonOptions()
-                .addAll(newPolygon7)
-                .strokeWidth(0)
-                .fillColor(Color.argb(50, 255, 207, 0)));
-
-        Polygon p8 = mMap.addPolygon(new PolygonOptions()
-                .addAll(newPolygon8)
-                .strokeWidth(0)
-                .fillColor(Color.argb(50, 255, 207, 0)));
-
-        Polygon p9 = mMap.addPolygon(new PolygonOptions()
-                .addAll(newPolygon9)
-                .strokeWidth(0)
-                .fillColor(Color.argb(50, 255, 207, 0)));
-
-        Polygon p10 = mMap.addPolygon(new PolygonOptions()
-                .addAll(newPolygon10)
-                .strokeWidth(0)
-                .fillColor(Color.argb(50, 255, 207, 0)));
-
-
-        polyList.add(new Zone(p1, 0));
-        polyList.add(new Zone(p2, 0));
-        polyList.add(new Zone(p3, 0));
-        polyList.add(new Zone(p4, 0));
-        polyList.add(new Zone(p5, 0));
-        polyList.add(new Zone(p6, 0));
-        polyList.add(new Zone(p7, 0));
-        polyList.add(new Zone(p8, 0));
-        polyList.add(new Zone(p9, 0));
-        polyList.add(new Zone(p10, 0));
-
-
-        /*String textTitle = "Red zone";
-        String textContent = "fuck this";
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.notification_icon)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-        createNotificationChannel();
-        for (Zone pObj : MapsActivity.instance.polyList) {
-            if (PolyUtil.containsLocation(new LatLng(MapsActivity.instance.location.getLatitude(), MapsActivity.instance.location.getLongitude()), pObj.polygon.getPoints(), true)) {
-
-                if(pObj.polygon.getFillColor() == Color.argb(70, 255, 0, 0)){
-                    builder.setContentTitle("Extremely high risk zone!");
-                    builder.setContentText("We would recommend you move out of this area, as it is crowded currently.");
-                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-                    // notificationId is a unique int for each notification that you must define
-                    notificationManager.notify(1, builder.build());
-                }
-                if(pObj.polygon.getFillColor() == Color.argb(80, 255, 75, 0)){
-                    builder.setContentTitle("High risk zone!");
-                    builder.setContentText("We would recommend you move out of this area, as it is crowded currently.");
-                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-                    // notificationId is a unique int for each notification that you must define
-                    notificationManager.notify(1, builder.build());
-                }
-
-                if(pObj.polygon.getFillColor() == Color.argb(50, 0, 250, 0)){
-                    pObj.polygon.setFillColor(Color.argb(50, 255, 207, 0));
-                }
-
-
-            }
-        }
-*/
+        Poly poly = new Poly();
+        for(int i = 0 ; i < Poly.listOfPolygons.size(); i++)
+            polyList.add(new Zone(Poly.listOfPolygons.get(i),0));
 
 
 
@@ -316,12 +129,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (dataSnapshot.exists())
                     maxId = (dataSnapshot.getChildrenCount());
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
+
+
+            /*
+            for(int i = 0; i < 10; i++){
+                dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
+            }*/
+
 
         //dbRef.setValue(polyList);
         for(int i = 0; i < 10; i++){
