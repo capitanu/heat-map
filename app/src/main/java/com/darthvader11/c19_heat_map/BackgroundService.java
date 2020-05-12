@@ -85,9 +85,7 @@ public class BackgroundService  extends Service {
             BackgroundService getService(){return BackgroundService.this;}
         }
 
-        public BackgroundService(){
-
-        }
+        public BackgroundService(){}
 
     @Override
     public void onCreate() {
@@ -205,7 +203,7 @@ public class BackgroundService  extends Service {
                     .addAction(R.drawable.ic_stat_name, "Launch", activityPendingIntent)
                     .addAction(R.drawable.ic_stat_name, "Exit", servicePendingIntent)
                     .setContentText("Process running in background")
-                    .setContentTitle("Pesbai")
+                    .setContentTitle("Pass by")
                     .setOngoing(true)
                     .setPriority(Notification.PRIORITY_HIGH)
                     .setSmallIcon(R.drawable.ic_stat_name)
@@ -250,10 +248,28 @@ public class BackgroundService  extends Service {
         return true;
     }
 
+    public DatabaseReference reff;
     @Override
     public void onDestroy() {
-            mServiceHandler.removeCallbacks(null);
+        reff = FirebaseDatabase.getInstance().getReference().child("Polygons");
+        reff.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (MapsActivity.instance.i != -1) {
+                    Log.v("previous", String.valueOf(MapsActivity.instance.i));
+                    int users2 = dataSnapshot.child(String.valueOf(MapsActivity.instance.i)).child("users").getValue(Integer.class);
+                    users2--;
+                    reff.child(String.valueOf(MapsActivity.instance.i)).child("users").setValue(users2);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+
+        });
+        mServiceHandler.removeCallbacks(null);
         super.onDestroy();
     }
-
 }

@@ -1,4 +1,5 @@
 <resources>
-    <string name="app_name">C19-Heat-Map</string>
-    <string name="title_activity_maps">C19 Heat Map</string>
+    <string name="app_name">Pass by</string>
+    <string name="title_activity_maps">Pass by</string>
+    <string name="places_api_key">AIzaSyDLZxF_OxTpRsajQvpUFdCE6kypGDgkEOQ</string>
 </resources>

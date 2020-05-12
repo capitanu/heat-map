@@ -6,6 +6,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Debug;
@@ -18,6 +19,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.firebase.database.DataSnapshot;
@@ -74,17 +78,27 @@ public class SendToDatabase implements Runnable {
         }
     }
     public void checkAndUpdate(){
-
-
             MapsActivity.instance.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    float []distance = new float[2];
+                    try {
+                        Location.distanceBetween(MapsActivity.instance.location.getLatitude(), MapsActivity.instance.location.getLongitude(), MapsActivity.instance.ck.getCenter().latitude, MapsActivity.instance.ck.getCenter().longitude, distance);
+                    }
+                    catch(Exception e){
+                        MapsActivity.instance.ck = MapsActivity.instance.mMap.addCircle(new CircleOptions()
+                                 .radius(1)
+                                 .center(new LatLng(MapsActivity.instance.location.getLatitude() + 20, MapsActivity.instance.location.getLongitude()))
+                        );
+                    }
+                    if(distance[0] > MapsActivity.instance.ck.getRadius())
                     for (i = 0; i < MapsActivity.instance.polyList.size(); i++) {
+                        MapsActivity.instance.isHome = false;
                         try {
                             if (PolyUtil.containsLocation(new LatLng(MapsActivity.instance.location.getLatitude(), MapsActivity.instance.location.getLongitude()), MapsActivity.instance.polyList.get(i).polygon.getPoints(), true)) {
+                                MapsActivity.instance.i = i;
                                 if (previousZoneCheck != i) {
                                     previousZoneCheck = i;
-                                    MapsActivity.instance.i = i;
                                     //MapsActivity.instance.previousZone = previousZone;
                                     reff.addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
@@ -125,6 +139,28 @@ public class SendToDatabase implements Runnable {
                         catch (Exception e){
                             e.printStackTrace();
                         }
+                    }
+                    else {
+                        if(MapsActivity.instance.isHome == false)
+                        reff.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if(MapsActivity.instance.previousZone != -1) {
+                                    Log.v("previous", String.valueOf(MapsActivity.instance.previousZone));
+                                    int users2 = dataSnapshot.child(String.valueOf(MapsActivity.instance.previousZone)).child("users").getValue(Integer.class);
+                                    users2--;
+                                    reff.child(String.valueOf(MapsActivity.instance.previousZone)).child("users").setValue(users2);
+                                }
+                                MapsActivity.instance.previousZone = MapsActivity.instance.i;
+
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+                        MapsActivity.instance.isHome = true;
                     }
                 }
             });

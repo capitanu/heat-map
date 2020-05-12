@@ -14,7 +14,9 @@ public class Poly {
     public static List<Polygon> listOfPolygons = new ArrayList<>(listOfpoints.size());
    // public List<LatLng> polygon1 = new ArrayList<>();
   //  public List<LatLng> polygon2 = new ArrayList<>();
-    public void instantiate(){
+    public static void instantiate(){
+        listOfpoints = new ArrayList<>(12);
+        listOfPolygons = new ArrayList<>(listOfpoints.size());
         for ( int i= 0 ; i < 12; i++ ){
             listOfpoints.add(new ArrayList<LatLng>());
         }

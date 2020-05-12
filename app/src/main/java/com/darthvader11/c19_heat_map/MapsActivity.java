@@ -25,7 +25,23 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.EventLog;
 import android.util.Log;
+import android.view.View;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.maps.android.PolyUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -35,6 +51,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.libraries.places.api.Places;
+
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.google.firebase.database.DataSnapshot;
@@ -56,6 +74,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.lang.reflect.Array;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,6 +99,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     BackgroundService mService = null;
     boolean mBound = false;
     boolean once = true;
+    TextInputEditText mSearchText;
+    int AUTOCOMPLETE_REQUEST_CODE = 1;
+    ImageView searchButton;
+    Marker mk;
+    Circle ck;
+    public boolean isHome = false;
+
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -107,6 +133,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        Button btnSetHome = findViewById(R.id.btnSet);
+        Button btnSetCircle = findViewById(R.id.btnSetCurrent);
+
+        btnSetCircle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    if (ck != null)
+                        ck.remove();
+                    ck = mMap.addCircle(new CircleOptions()
+                            .center(new LatLng(location.getLatitude(), location.getLongitude()))
+                            .radius(100)
+                            .fillColor(Color.argb(30, 50, 50, 0))
+                    );
+                    mk.remove();
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+        
+        btnSetHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ck != null)
+                    ck.remove();
+                if(mk != null) {
+                    ck = mMap.addCircle(new CircleOptions()
+                            .center(mk.getPosition())
+                            .radius(100)
+                            .fillColor(Color.argb(30, 50, 50, 0))
+                    );
+                    mk.remove();
+                }
+
+            }
+        });
+
 
 
         dbRef = FirebaseDatabase.getInstance().getReference().child("Polygons");
@@ -169,7 +234,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLng(bucharest));
         mMap.setMyLocationEnabled(true);
 
-
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                if(mk != null)
+                    mk.remove();
+                mk = mMap.addMarker(new MarkerOptions()
+                .position(latLng)
+                .title("Home Address"));
+            }
+        });
 
 /*
         criteria = new Criteria();
@@ -202,8 +276,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 */
 
-        Poly poly = new Poly();
-        poly.instantiate();
+
+        Poly.instantiate();
         for (int i = 0; i < Poly.listOfpoints.size(); i++) {
             //FIX BUG
                 Poly.listOfPolygons.add(MapsActivity.instance.mMap.addPolygon(new PolygonOptions()
@@ -237,9 +311,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         //dbRef.setValue(polyList);
-        for(int i = 0; i < polyList.size(); i++){
-            dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
-        }
+        //for(int i = 0; i < polyList.size(); i++){
+        //    dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
+        //}
 
         if(mService != null){
             Log.i("ATLEASTHERE", "pls");
