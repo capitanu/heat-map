@@ -89,7 +89,7 @@ public class SendToDatabase implements Runnable {
                     catch(Exception e){
                         MapsActivity.instance.ck = MapsActivity.instance.mMap.addCircle(new CircleOptions()
                                  .radius(1)
-                                 .center(new LatLng(MapsActivity.instance.location.getLatitude() + 20, MapsActivity.instance.location.getLongitude()))
+                                 .center(new LatLng(20, 0))
                         );
                     }
                     if(distance[0] > MapsActivity.instance.ck.getRadius())
