@@ -55,7 +55,6 @@ public class SendToDatabase implements Runnable {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for(int i = 0; i < Poly.listOfpoints.size(); i++) {
-                    System.out.println(i);
                     int pl = dataSnapshot.child(String.valueOf(i)).child("polygon").child("fillColor").getValue(Integer.class);
                     MapsActivity.instance.polyList.get(i).polygon.setFillColor(pl);
                 }

@@ -99,6 +99,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Circle ck;
     public boolean isHome = false;
     public static final String SHARED_PREFS = "sharedPrefs";
+    public static final String HOME_LONG = "hLong";
+    public static final String HOME_LAT = "hLat";
+    SharedPreferences.Editor editor;
+    LocationManager locationManager;
+    Criteria criteria;
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -130,6 +135,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Button btnSetHome = findViewById(R.id.btnSet);
         Button btnSetCircle = findViewById(R.id.btnSetCurrent);
 
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
         btnSetCircle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -142,6 +150,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .fillColor(Color.argb(50, 30, 30, 150))
                             .strokeWidth(0)
                     );
+                    editor.putFloat(HOME_LAT, (float) location.getLatitude());
+                    editor.putFloat(HOME_LONG, (float) location.getLongitude());
+
                     mk.remove();
                 }
                 catch (Exception e){
@@ -162,6 +173,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .fillColor(Color.argb(50, 30, 30, 150))
                             .strokeWidth(0)
                     );
+                    editor.putFloat(HOME_LAT, (float) location.getLatitude());
+                    editor.putFloat(HOME_LONG, (float) location.getLongitude());
                     mk.remove();
                 }
 
@@ -241,9 +254,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-/*
-        criteria = new Criteria();
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
 
+        double lat = sharedPreferences.getFloat(HOME_LAT, -1);
+        double log = sharedPreferences.getFloat(HOME_LONG, -1);
+
+        if(ck != null)
+            ck.remove();
+        ck = mMap.addCircle(new CircleOptions()
+                    .center(new LatLng(lat,log))
+                    .radius(100)
+                    .fillColor(Color.argb(50, 30, 30, 150))
+                    .strokeWidth(0)
+            );
+
+        /*
+        Set all to zero
+         */
+
+
+        criteria = new Criteria();
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -258,31 +288,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
 
-
-        location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
-        if (location != null) {
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
-
-            CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
-                    .zoom(15)                   // Sets the zoom
-                    .build();                   // Creates a CameraPosition from the builder
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-        }
-
-*/
-
-
         Poly.instantiate();
-        /*for (int i = 0; i < Poly.listOfpoints.size(); i++) {
-            //FIX BUG
-                Poly.listOfPolygons.add(MapsActivity.instance.mMap.addPolygon(new PolygonOptions()
-                        .addAll(Poly.listOfpoints.get(i))
-                        .strokeWidth(0)
-                        .fillColor(Color.argb(50, 0, 250, 0))));
-            }*/
-            for (int i = 0; i < Poly.listOfpoints.size(); i++)
-                polyList.add(new Zone(Poly.listOfPolygons.get(i), 0));
+        for (int i = 0; i < Poly.listOfpoints.size(); i++)
+            polyList.add(new Zone(Poly.listOfPolygons.get(i), 0));
 
 
         dbRef.addValueEventListener(new ValueEventListener() {
@@ -298,26 +306,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
-        /*
-            for(int i = 0; i < 70; i++){
-                dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
-            }
 
-        */
-
-
-        //dbRef.setValue(polyList);
-        //for(int i = 0; i < polyList.size(); i++){
-        //    dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
-        //}
 
         if(mService != null){
             Log.i("ATLEASTHERE", "pls");
         }
 
     }
-
-/*
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
@@ -336,7 +331,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
- */
 
     public void sendYellowNotification(){
         NotificationCompat.Builder builder = new NotificationCompat.Builder(MapsActivity.instance, MapsActivity.instance.CHANNEL_ID)
