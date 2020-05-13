@@ -99,7 +99,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Circle ck;
     public boolean isHome = false;
     public static final String SHARED_PREFS = "sharedPrefs";
-   // public boolean firstStart;
+
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -123,89 +123,94 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
-      /*  SharedPreferences pref = getSharedPreferences("pref",MODE_PRIVATE);
-        firstStart = pref.getBoolean("firstStart",true);
-        if(firstStart){
-            SharedPreferences.Editor editor = pref.edit();
-            editor.putBoolean("firstStart",false);
-            startActivity(new Intent(MapsActivity.this, FirstActivity.class));
-        }*/
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-        Button btnSetHome = findViewById(R.id.btnSet);
-        Button btnSetCircle = findViewById(R.id.btnSetCurrent);
+      //  SharedPreferences pref = getSharedPreferences("pref",MODE_PRIVATE);
+      //  boolean firstStart = pref.getBoolean("firstStart",true);
 
-        btnSetCircle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
+        super.onCreate(savedInstanceState);
+
+
+      //  if(firstStart){
+       //     SharedPreferences.Editor editor = pref.edit();
+       //     editor.putBoolean("firstStart",false);
+        //    editor.apply();
+
+       //     startActivity(new Intent(MapsActivity.this, FirstActivity.class));
+       // }
+
+            setContentView(R.layout.activity_maps);
+
+
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.map);
+            mapFragment.getMapAsync(this);
+            Button btnSetHome = findViewById(R.id.btnSet);
+            Button btnSetCircle = findViewById(R.id.btnSetCurrent);
+
+            btnSetCircle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        if (ck != null)
+                            ck.remove();
+                        ck = mMap.addCircle(new CircleOptions()
+                                .center(new LatLng(location.getLatitude(), location.getLongitude()))
+                                .radius(100)
+                                .fillColor(Color.argb(50, 30, 30, 150))
+                                .strokeWidth(0)
+                        );
+                        mk.remove();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            btnSetHome.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                     if (ck != null)
                         ck.remove();
-                    ck = mMap.addCircle(new CircleOptions()
-                            .center(new LatLng(location.getLatitude(), location.getLongitude()))
-                            .radius(100)
-                            .fillColor(Color.argb(50, 30, 30, 150))
-                            .strokeWidth(0)
-                    );
-                    mk.remove();
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        });
-        
-        btnSetHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(ck != null)
-                    ck.remove();
-                if(mk != null) {
-                    ck = mMap.addCircle(new CircleOptions()
-                            .center(mk.getPosition())
-                            .radius(100)
-                            .fillColor(Color.argb(50, 30, 30, 150))
-                            .strokeWidth(0)
-                    );
-                    mk.remove();
-                }
-
-            }
-        });
-
-
-
-        dbRef = FirebaseDatabase.getInstance().getReference().child("Polygons");
-        instance = this;
-        main = Thread.currentThread();
-
-        Dexter.withContext(this)
-                .withPermissions(Arrays.asList(
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                ))
-                .withListener(new MultiplePermissionsListener(){
-
-                    @Override
-                    public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
-
-                        bindService(new Intent(MapsActivity.this, BackgroundService.class),
-                                mServiceConnection,
-                                Context.BIND_AUTO_CREATE);
-                        Log.v("this","happenede");
-                        //mService.requestLocationUpdates();
+                    if (mk != null) {
+                        ck = mMap.addCircle(new CircleOptions()
+                                .center(mk.getPosition())
+                                .radius(100)
+                                .fillColor(Color.argb(50, 30, 30, 150))
+                                .strokeWidth(0)
+                        );
+                        mk.remove();
                     }
 
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
+                }
+            });
 
-                    }
-                }).check();
 
+            dbRef = FirebaseDatabase.getInstance().getReference().child("Polygons");
+            instance = this;
+            main = Thread.currentThread();
+
+            Dexter.withContext(this)
+                    .withPermissions(Arrays.asList(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                    ))
+                    .withListener(new MultiplePermissionsListener() {
+
+                        @Override
+                        public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
+
+                            bindService(new Intent(MapsActivity.this, BackgroundService.class),
+                                    mServiceConnection,
+                                    Context.BIND_AUTO_CREATE);
+                            Log.v("this", "happenede");
+                            //mService.requestLocationUpdates();
+                        }
+
+                        @Override
+                        public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
+
+                        }
+                    }).check();
 
 
     }

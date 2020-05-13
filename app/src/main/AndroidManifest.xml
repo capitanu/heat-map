@@ -43,10 +43,12 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps">
         </activity>
-        <activity android:name=".FirstActivity" > <intent-filter>
+        <activity android:name=".FirstActivity">
+            <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter></activity>
+        </intent-filter>
+</activity>
     </application>
 
 </manifest>
