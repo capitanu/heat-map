@@ -13,25 +13,25 @@ public class FirstActivity extends AppCompatActivity {
 
    //public boolean firstStart;
     protected void onCreate(Bundle savedInstanceState) {
-        SharedPreferences pref = getSharedPreferences("pref",MODE_PRIVATE);
-        boolean firstStart = pref.getBoolean("firstStart",true);
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.first_activity);
 
-          if(firstStart){
-             SharedPreferences.Editor editor = pref.edit();
-             editor.putBoolean("firstStart",false);
-           editor.apply();
-         }
+        boolean firstStart = getSharedPreferences("pref",MODE_PRIVATE)
+                .getBoolean("firstStart",false);
 
-          else {
+
+         /* if(firstStart){
               startActivity(new Intent(FirstActivity.this, MapsActivity.class));
-          }
+         }*/
+
         Button button = findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                getSharedPreferences("pref", MODE_PRIVATE).edit()
+                        .putBoolean("firstStart", true).apply();
                 Intent intent = new Intent(FirstActivity.this,MapsActivity.class);
                 startActivity(intent);
             }
