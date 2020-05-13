@@ -105,8 +105,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Circle ck;
     public boolean isHome = false;
     public static final String SHARED_PREFS = "sharedPrefs";
+    public static final String HOME_LAT = "hLat";
+    public static final String HOME_LNG = "hLng";
     Criteria criteria;
     LocationManager locationManager;
+    public SharedPreferences.Editor editor;
+
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -154,6 +158,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Button btnSetHome = findViewById(R.id.btnSet);
         Button btnSetCircle = findViewById(R.id.btnSetCurrent);
 
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
         btnSetCircle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -167,10 +174,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .strokeWidth(0)
                     );
                     mk.remove();
+
                 }
                 catch (Exception e){
                     e.printStackTrace();
                 }
+                editor.putFloat(HOME_LAT, (float) location.getLatitude());
+                editor.putFloat(HOME_LNG, (float) location.getLongitude());
+                editor.apply();
+                Log.v("CCDev", "Added to the shared preferences");
             }
         });
         
@@ -186,8 +198,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .fillColor(Color.argb(50, 30, 30, 150))
                             .strokeWidth(0)
                     );
+
                     mk.remove();
                 }
+                editor.putFloat(HOME_LAT, (float)  mk.getPosition().latitude);
+                editor.putFloat(HOME_LNG, (float)  mk.getPosition().longitude);
+                editor.apply();
+                Log.v("CCDev", "Added to the shared preferences");
 
             }
         });
@@ -195,6 +212,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(checkAndRequestPermissions()) {
                 // carry on the normal flow, as the case of  permissions  granted.
             mapFragment.getMapAsync(this);
+            bindService(new Intent(MapsActivity.this, BackgroundService.class),
+                    mServiceConnection,
+                    Context.BIND_AUTO_CREATE);
         }
 
         dbRef = FirebaseDatabase.getInstance().getReference().child("Polygons");
@@ -276,6 +296,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
 
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        float lng = sharedPreferences.getFloat(HOME_LNG, -1);
+        float lat = sharedPreferences.getFloat(HOME_LAT, -1);
+        Log.v("CCDev",String.valueOf(lng));
+        Log.v("CCDev",String.valueOf(lat));
+        if(lat != -1 && lng != -1) {
+            if (ck != null)
+                ck.remove();
+            ck = mMap.addCircle(new CircleOptions()
+                .center(new LatLng(lat, lng))
+                .radius(100)
+                .fillColor(Color.argb(50, 30, 30, 150))
+                .strokeWidth(0));
+
+        }
+
+
 
 
         Poly.instantiate();
@@ -303,12 +340,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
-        /*
-            for(int i = 0; i < 70; i++){
+
+            /*for(int i = 0; i < 70; i++){
                 dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
             }
-
-        */
+*/
 
 
         //dbRef.setValue(polyList);
