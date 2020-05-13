@@ -99,6 +99,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Circle ck;
     public boolean isHome = false;
     public static final String SHARED_PREFS = "sharedPrefs";
+   // public boolean firstStart;
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -124,6 +125,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+      /*  SharedPreferences pref = getSharedPreferences("pref",MODE_PRIVATE);
+        firstStart = pref.getBoolean("firstStart",true);
+        if(firstStart){
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putBoolean("firstStart",false);
+            startActivity(new Intent(MapsActivity.this, FirstActivity.class));
+        }*/
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
