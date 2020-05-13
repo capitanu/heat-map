@@ -135,57 +135,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Button btnSetHome = findViewById(R.id.btnSet);
         Button btnSetCircle = findViewById(R.id.btnSetCurrent);
 
-        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-        editor = sharedPreferences.edit();
-
-        btnSetCircle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    if (ck != null)
-                        ck.remove();
-                    ck = mMap.addCircle(new CircleOptions()
-                            .center(new LatLng(location.getLatitude(), location.getLongitude()))
-                            .radius(100)
-                            .fillColor(Color.argb(50, 30, 30, 150))
-                            .strokeWidth(0)
-                    );
-                    editor.putFloat(HOME_LAT, (float) location.getLatitude());
-                    editor.putFloat(HOME_LONG, (float) location.getLongitude());
-
-                    mk.remove();
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        });
-        
-        btnSetHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(ck != null)
-                    ck.remove();
-                if(mk != null) {
-                    ck = mMap.addCircle(new CircleOptions()
-                            .center(mk.getPosition())
-                            .radius(100)
-                            .fillColor(Color.argb(50, 30, 30, 150))
-                            .strokeWidth(0)
-                    );
-                    editor.putFloat(HOME_LAT, (float) location.getLatitude());
-                    editor.putFloat(HOME_LONG, (float) location.getLongitude());
-                    mk.remove();
-                }
-
-            }
-        });
-
-
-
-        dbRef = FirebaseDatabase.getInstance().getReference().child("Polygons");
-        instance = this;
-        main = Thread.currentThread();
+        //SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        //editor = sharedPreferences.edit();
 
         Dexter.withContext(this)
                 .withPermissions(Arrays.asList(
@@ -210,6 +161,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     }
                 }).check();
+
+
+        btnSetCircle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    if (ck != null)
+                        ck.remove();
+                    ck = mMap.addCircle(new CircleOptions()
+                            .center(new LatLng(location.getLatitude(), location.getLongitude()))
+                            .radius(100)
+                            .fillColor(Color.argb(50, 30, 30, 150))
+                            .strokeWidth(0)
+                    );
+                    //editor.putFloat(HOME_LAT, (float) location.getLatitude());
+                    //editor.putFloat(HOME_LONG, (float) location.getLongitude());
+
+                    mk.remove();
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+        
+        btnSetHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ck != null)
+                    ck.remove();
+                if(mk != null) {
+                    ck = mMap.addCircle(new CircleOptions()
+                            .center(mk.getPosition())
+                            .radius(100)
+                            .fillColor(Color.argb(50, 30, 30, 150))
+                            .strokeWidth(0)
+                    );
+                    //editor.putFloat(HOME_LAT, (float) location.getLatitude());
+                   // editor.putFloat(HOME_LONG, (float) location.getLongitude());
+                    mk.remove();
+                }
+
+            }
+        });
+
+
+
+        dbRef = FirebaseDatabase.getInstance().getReference().child("Polygons");
+        instance = this;
+        main = Thread.currentThread();
 
 
 
@@ -237,10 +238,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         mMap = googleMap;
 
         LatLng bucharest = new LatLng(44.426972, 26.102528);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(bucharest));
+
         mMap.setMyLocationEnabled(true);
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
@@ -254,11 +257,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        //SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
 
-        double lat = sharedPreferences.getFloat(HOME_LAT, -1);
-        double log = sharedPreferences.getFloat(HOME_LONG, -1);
-
+        //double lat = sharedPreferences.getFloat(HOME_LAT, -1);
+        //double log = sharedPreferences.getFloat(HOME_LONG, -1);
+/*
         if(ck != null)
             ck.remove();
         ck = mMap.addCircle(new CircleOptions()
@@ -273,19 +276,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
          */
 
 
-        criteria = new Criteria();
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            }
-        }
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
 
 
         Poly.instantiate();
