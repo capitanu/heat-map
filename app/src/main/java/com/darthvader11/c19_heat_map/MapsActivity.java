@@ -74,12 +74,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.lang.reflect.Array;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -88,8 +85,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private DatabaseReference dbRef;
     public Location location;
     public static MapsActivity instance;
-    public LocationManager locationManager;
-    public Criteria criteria;
     public long maxId = 0;
     public String CHANNEL_ID = "test";
     public int i;
@@ -100,11 +95,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     boolean mBound = false;
     boolean once = true;
     TextInputEditText mSearchText;
-    int AUTOCOMPLETE_REQUEST_CODE = 1;
-    ImageView searchButton;
     Marker mk;
     Circle ck;
     public boolean isHome = false;
+    public static final String SHARED_PREFS = "sharedPrefs";
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -145,7 +139,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     ck = mMap.addCircle(new CircleOptions()
                             .center(new LatLng(location.getLatitude(), location.getLongitude()))
                             .radius(100)
-                            .fillColor(Color.argb(30, 50, 50, 0))
+                            .fillColor(Color.argb(50, 30, 30, 150))
+                            .strokeWidth(0)
                     );
                     mk.remove();
                 }
@@ -164,7 +159,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     ck = mMap.addCircle(new CircleOptions()
                             .center(mk.getPosition())
                             .radius(100)
-                            .fillColor(Color.argb(30, 50, 50, 0))
+                            .fillColor(Color.argb(50, 30, 30, 150))
+                            .strokeWidth(0)
                     );
                     mk.remove();
                 }
@@ -278,14 +274,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         Poly.instantiate();
-        for (int i = 0; i < Poly.listOfpoints.size(); i++) {
+        /*for (int i = 0; i < Poly.listOfpoints.size(); i++) {
             //FIX BUG
                 Poly.listOfPolygons.add(MapsActivity.instance.mMap.addPolygon(new PolygonOptions()
                         .addAll(Poly.listOfpoints.get(i))
                         .strokeWidth(0)
                         .fillColor(Color.argb(50, 0, 250, 0))));
-            }
-            for (int i = 0; i < Poly.listOfPolygons.size(); i++)
+            }*/
+            for (int i = 0; i < Poly.listOfpoints.size(); i++)
                 polyList.add(new Zone(Poly.listOfPolygons.get(i), 0));
 
 
@@ -303,11 +299,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         /*
-            for(int i = 0; i < 10; i++){
+            for(int i = 0; i < 70; i++){
                 dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
             }
 
-         */
+        */
 
 
         //dbRef.setValue(polyList);

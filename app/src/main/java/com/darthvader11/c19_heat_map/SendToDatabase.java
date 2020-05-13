@@ -47,14 +47,15 @@ public class SendToDatabase implements Runnable {
     public static int previousZone = -1;
     public static int nrOfUsers;
     public ArrayList<Zone> zoneList;
-
+    public boolean homePolygonCheck = false;
     @SuppressLint("MissingPermission")
     public void update() {
         //MapsActivity.instance.test();
         reff.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for(int i = 0; i < MapsActivity.instance.polyList.size(); i++) {
+                for(int i = 0; i < Poly.listOfpoints.size(); i++) {
+                    System.out.println(i);
                     int pl = dataSnapshot.child(String.valueOf(i)).child("polygon").child("fillColor").getValue(Integer.class);
                     MapsActivity.instance.polyList.get(i).polygon.setFillColor(pl);
                 }
@@ -97,7 +98,7 @@ public class SendToDatabase implements Runnable {
                         try {
                             if (PolyUtil.containsLocation(new LatLng(MapsActivity.instance.location.getLatitude(), MapsActivity.instance.location.getLongitude()), MapsActivity.instance.polyList.get(i).polygon.getPoints(), true)) {
                                 MapsActivity.instance.i = i;
-                                if (previousZoneCheck != i) {
+                                if (previousZoneCheck != i && homePolygonCheck == false) {
                                     previousZoneCheck = i;
                                     //MapsActivity.instance.previousZone = previousZone;
                                     reff.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -117,11 +118,48 @@ public class SendToDatabase implements Runnable {
                                                 reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(50, 255, 207, 0));
                                                 MapsActivity.instance.sendYellowNotification();
                                             }
-                                            if(MapsActivity.instance.previousZone != -1) {
-                                                Log.v("previous", String.valueOf(MapsActivity.instance.previousZone));
-                                                int users2 = dataSnapshot.child(String.valueOf(MapsActivity.instance.previousZone)).child("users").getValue(Integer.class);
-                                                users2--;
-                                                reff.child(String.valueOf(MapsActivity.instance.previousZone)).child("users").setValue(users2);
+                                            else if(users < 1){
+                                                reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(50, 0, 250, 0));
+                                            }
+                                            if(MapsActivity.instance.previousZone != MapsActivity.instance.i)
+                                                if(MapsActivity.instance.previousZone != -1) {
+                                                  Log.v("previous", String.valueOf(MapsActivity.instance.previousZone));
+                                                  int users2 = dataSnapshot.child(String.valueOf(MapsActivity.instance.previousZone)).child("users").getValue(Integer.class);
+                                                  users2--;
+                                                  reff.child(String.valueOf(MapsActivity.instance.previousZone)).child("users").setValue(users2);
+                                                }
+                                            MapsActivity.instance.previousZone = MapsActivity.instance.i;
+
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                        }
+                                    });
+
+                                }
+                                else if(homePolygonCheck){
+                                    homePolygonCheck = false;
+                                    reff.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            int users = dataSnapshot.child(String.valueOf(MapsActivity.instance.i)).child("users").getValue(Integer.class);
+                                            users++;
+                                            SendToDatabase.nrOfUsers = users;
+                                            reff.child(String.valueOf(MapsActivity.instance.i)).child("users").setValue(users);
+                                            if(users >= 2){
+                                                //MapsActivity.instance.polyList.get(MapsActivity.instance.i).polygon.setFillColor(Color.argb(70, 255, 0, 0));
+                                                reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(70, 255, 0, 0));
+                                                MapsActivity.instance.sendRedNotification();
+                                            }
+                                            else if(users >= 1){
+                                                //MapsActivity.instance.polyList.get(MapsActivity.instance.i).polygon.setFillColor(Color.argb(50, 255, 207, 0));
+                                                reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(50, 255, 207, 0));
+                                                MapsActivity.instance.sendYellowNotification();
+                                            }
+                                            else if(users < 1){
+                                                reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(50, 0, 250, 0));
                                             }
                                             MapsActivity.instance.previousZone = MapsActivity.instance.i;
 
@@ -141,26 +179,39 @@ public class SendToDatabase implements Runnable {
                         }
                     }
                     else {
-                        if(MapsActivity.instance.isHome == false)
-                        reff.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if(MapsActivity.instance.previousZone != -1) {
-                                    Log.v("previous", String.valueOf(MapsActivity.instance.previousZone));
-                                    int users2 = dataSnapshot.child(String.valueOf(MapsActivity.instance.previousZone)).child("users").getValue(Integer.class);
-                                    users2--;
-                                    reff.child(String.valueOf(MapsActivity.instance.previousZone)).child("users").setValue(users2);
+                        if (MapsActivity.instance.isHome == false) {
+                            homePolygonCheck = true;
+                            reff.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if (MapsActivity.instance.previousZone != -1) {
+                                        Log.v("previous", String.valueOf(MapsActivity.instance.previousZone));
+                                        int users2 = dataSnapshot.child(String.valueOf(MapsActivity.instance.previousZone)).child("users").getValue(Integer.class);
+                                        users2--;
+                                        reff.child(String.valueOf(MapsActivity.instance.previousZone)).child("users").setValue(users2);
+                                        if (users2 >= 2) {
+                                            //MapsActivity.instance.polyList.get(MapsActivity.instance.i).polygon.setFillColor(Color.argb(70, 255, 0, 0));
+                                            reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(70, 255, 0, 0));
+                                            MapsActivity.instance.sendRedNotification();
+                                        } else if (users2 >= 1) {
+                                            //MapsActivity.instance.polyList.get(MapsActivity.instance.i).polygon.setFillColor(Color.argb(50, 255, 207, 0));
+                                            reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(50, 255, 207, 0));
+                                            MapsActivity.instance.sendYellowNotification();
+                                        } else if (users2 < 1) {
+                                            reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(50, 0, 250, 0));
+                                        }
+                                    }
+                                    MapsActivity.instance.previousZone = MapsActivity.instance.i;
+
                                 }
-                                MapsActivity.instance.previousZone = MapsActivity.instance.i;
 
-                            }
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
-                        MapsActivity.instance.isHome = true;
+                                }
+                            });
+                            MapsActivity.instance.isHome = true;
+                        }
                     }
                 }
             });
