@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/lightgrey"
+    tools:context=".FirstActivity">
+
+    <TextView
+        android:id="@+id/passby"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
+        android:textSize="40dp"
+        android:textColor="@color/darkred"
+        android:text="Pass by" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="84dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="80dp"
+        android:layout_centerHorizontal="true"
+        app:srcCompat="@mipmap/ic_launcher_foreground" />
+
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="200dp"
+        android:textSize="17sp"
+        android:textColor="@color/grey"
+        android:gravity="center"
+        android:text="Pass by is an app meant to keep you away from crowded places. You, a concerned user, can find out in real time which places are full and unsafe for you to go in.
+How does it work or what do you have to give in exchange? Pass by is completely free of charge and collects NO personal data. Although, Pass by needs your location permission and runs in the background, every bit of information is kept locally on your phone. But finally, how does it work? " />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:gravity="center"
+        android:textSize="17sp"
+        android:textColor="@color/grey"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="400dp"
+
+        android:text="We split big cities, hopefully including yours, into small areas. If you are located in one of these areas, you will only be counted, we only save the number of people in an area.
+So, have fun while still being safe, avoid crowded areas and don't forget to rate us!" />
+
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="20dp"
+        android:textColor="@color/darkBlack"
+        android:background="@color/quantum_lightblue"
+        android:layout_marginBottom="35dp"
+        android:layout_alignParentRight="true"
+        android:text="Ok!" />
+
+
+</RelativeLayout>

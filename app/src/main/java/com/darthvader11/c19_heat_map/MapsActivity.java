@@ -154,7 +154,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-       // mapFragment.getMapAsync(this);
         Button btnSetHome = findViewById(R.id.btnSet);
         Button btnSetCircle = findViewById(R.id.btnSetCurrent);
 
@@ -190,7 +189,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.v("CCDev", "Added to the shared preferences");
             }
         });
-        
+
         btnSetHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -204,8 +203,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .strokeWidth(0)
                     );
                     //editor.putFloat(HOME_LAT, (float) location.getLatitude());
-                   // editor.putFloat(HOME_LONG, (float) location.getLongitude());
-
                     mk.remove();
                 }
                 editor.putFloat(HOME_LAT, (float)  mk.getPosition().latitude);
@@ -217,7 +214,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         if(checkAndRequestPermissions()) {
-                // carry on the normal flow, as the case of  permissions  granted.
             mapFragment.getMapAsync(this);
             bindService(new Intent(MapsActivity.this, BackgroundService.class),
                     mServiceConnection,
@@ -285,8 +281,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if(mk != null)
                     mk.remove();
                 mk = mMap.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title("Home Address"));
+                        .position(latLng)
+                        .title("Home Address"));
             }
         });
 
@@ -303,7 +299,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .fillColor(Color.argb(50, 30, 30, 150))
                     .strokeWidth(0)
             );
-
         /*
         Set all to zero
          */
@@ -348,11 +343,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
-
-
-            for(int i = 0; i < 70; i++){
-                dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
-            }
+        for(int i = 0; i < 70; i++){
+            dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
+        }
 
 
 
@@ -415,9 +408,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "test1" ;
-                    //getString(R.string.channel_name);
+            //getString(R.string.channel_name);
             String description = "another test1";
-                    //getString(R.string.channel_description);
+            //getString(R.string.channel_description);
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
@@ -466,6 +459,3 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 }
-
-
-
