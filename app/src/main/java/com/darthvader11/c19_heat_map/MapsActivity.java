@@ -6,6 +6,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import android.Manifest;
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ComponentName;
@@ -63,6 +64,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.firebase.database.ValueEventListener;
+import com.jakewharton.processphoenix.ProcessPhoenix;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -78,6 +80,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, SharedPreferences.OnSharedPreferenceChangeListener {
 
     public GoogleMap mMap;
@@ -85,6 +89,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private DatabaseReference dbRef;
     public Location location;
     public static MapsActivity instance;
+    public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
+
     public long maxId = 0;
     public String CHANNEL_ID = "test";
     public int i;
@@ -99,6 +105,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Circle ck;
     public boolean isHome = false;
     public static final String SHARED_PREFS = "sharedPrefs";
+    public static final String HOME_LAT = "hLat";
+    public static final String HOME_LNG = "hLng";
+    Criteria criteria;
+    LocationManager locationManager;
+    public SharedPreferences.Editor editor;
 
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -118,99 +129,121 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     };
 
-
+    private  boolean checkAndRequestPermissions() {
+        int permissionSendMessage = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+        int locationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        if (locationPermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if (permissionSendMessage != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+        }
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),REQUEST_ID_MULTIPLE_PERMISSIONS);
+            return false;
+        }
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-      //  SharedPreferences pref = getSharedPreferences("pref",MODE_PRIVATE);
-      //  boolean firstStart = pref.getBoolean("firstStart",true);
-
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_maps);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        // mapFragment.getMapAsync(this);
+        Button btnSetHome = findViewById(R.id.btnSet);
+        Button btnSetCircle = findViewById(R.id.btnSetCurrent);
 
 
-      //  if(firstStart){
-       //     SharedPreferences.Editor editor = pref.edit();
-       //     editor.putBoolean("firstStart",false);
-        //    editor.apply();
-
-       //     startActivity(new Intent(MapsActivity.this, FirstActivity.class));
-       // }
-
-            setContentView(R.layout.activity_maps);
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        editor = sharedPreferences.edit();
 
 
-            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.map);
-            mapFragment.getMapAsync(this);
-            Button btnSetHome = findViewById(R.id.btnSet);
-            Button btnSetCircle = findViewById(R.id.btnSetCurrent);
-
-            btnSetCircle.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        if (ck != null)
-                            ck.remove();
-                        ck = mMap.addCircle(new CircleOptions()
-                                .center(new LatLng(location.getLatitude(), location.getLongitude()))
-                                .radius(100)
-                                .fillColor(Color.argb(50, 30, 30, 150))
-                                .strokeWidth(0)
-                        );
-                        mk.remove();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-
-            btnSetHome.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+        btnSetCircle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
                     if (ck != null)
                         ck.remove();
-                    if (mk != null) {
-                        ck = mMap.addCircle(new CircleOptions()
-                                .center(mk.getPosition())
-                                .radius(100)
-                                .fillColor(Color.argb(50, 30, 30, 150))
-                                .strokeWidth(0)
-                        );
-                        mk.remove();
-                    }
+                    ck = mMap.addCircle(new CircleOptions()
+                            .center(new LatLng(location.getLatitude(), location.getLongitude()))
+                            .radius(100)
+                            .fillColor(Color.argb(50, 30, 30, 150))
+                            .strokeWidth(0)
+                    );
+                    //editor.putFloat(HOME_LAT, (float) location.getLatitude());
+                    //editor.putFloat(HOME_LONG, (float) location.getLongitude());
+
+                    mk.remove();
 
                 }
-            });
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+                editor.putFloat(HOME_LAT, (float) location.getLatitude());
+                editor.putFloat(HOME_LNG, (float) location.getLongitude());
+                editor.apply();
+                Log.v("CCDev", "Added to the shared preferences");
+            }
+        });
+
+        btnSetHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ck != null)
+                    ck.remove();
+                if(mk != null) {
+                    ck = mMap.addCircle(new CircleOptions()
+                            .center(mk.getPosition())
+                            .radius(100)
+                            .fillColor(Color.argb(50, 30, 30, 150))
+                            .strokeWidth(0)
+                    );
+                    //editor.putFloat(HOME_LAT, (float) location.getLatitude());
+                    // editor.putFloat(HOME_LONG, (float) location.getLongitude());
+
+                    mk.remove();
+                }
+                editor.putFloat(HOME_LAT, (float)  mk.getPosition().latitude);
+                editor.putFloat(HOME_LNG, (float)  mk.getPosition().longitude);
+                editor.apply();
+                Log.v("CCDev", "Added to the shared preferences");
+
+            }
+        });
+
+        if(checkAndRequestPermissions()) {
+            // carry on the normal flow, as the case of  permissions  granted.
+            mapFragment.getMapAsync(this);
+            bindService(new Intent(MapsActivity.this, BackgroundService.class),
+                    mServiceConnection,
+                    Context.BIND_AUTO_CREATE);
+        }
+
+        dbRef = FirebaseDatabase.getInstance().getReference().child("Polygons");
+        instance = this;
+        main = Thread.currentThread();
+        criteria = new Criteria();
 
 
-            dbRef = FirebaseDatabase.getInstance().getReference().child("Polygons");
-            instance = this;
-            main = Thread.currentThread();
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            }
+        }
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-            Dexter.withContext(this)
-                    .withPermissions(Arrays.asList(
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION
-                    ))
-                    .withListener(new MultiplePermissionsListener() {
 
-                        @Override
-                        public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
-
-                            bindService(new Intent(MapsActivity.this, BackgroundService.class),
-                                    mServiceConnection,
-                                    Context.BIND_AUTO_CREATE);
-                            Log.v("this", "happenede");
-                            //mService.requestLocationUpdates();
-                        }
-
-                        @Override
-                        public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
-
-                        }
-                    }).check();
 
 
     }
@@ -235,12 +268,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onStop();
     }
 
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         mMap = googleMap;
 
         LatLng bucharest = new LatLng(44.426972, 26.102528);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(bucharest));
+
         mMap.setMyLocationEnabled(true);
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
@@ -249,53 +285,53 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if(mk != null)
                     mk.remove();
                 mk = mMap.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title("Home Address"));
+                        .position(latLng)
+                        .title("Home Address"));
             }
         });
 
+
+
+        //double lat = sharedPreferences.getFloat(HOME_LAT, -1);
+        //double log = sharedPreferences.getFloat(HOME_LONG, -1);
 /*
-        criteria = new Criteria();
+        if(ck != null)
+            ck.remove();
+        ck = mMap.addCircle(new CircleOptions()
+                    .center(new LatLng(lat,log))
+                    .radius(100)
+                    .fillColor(Color.argb(50, 30, 30, 150))
+                    .strokeWidth(0)
+            );
+        /*
+        Set all to zero
+         */
 
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            }
+
+
+
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        float lng = sharedPreferences.getFloat(HOME_LNG, -1);
+        float lat = sharedPreferences.getFloat(HOME_LAT, -1);
+        Log.v("CCDev",String.valueOf(lng));
+        Log.v("CCDev",String.valueOf(lat));
+        if(lat != -1 && lng != -1) {
+            if (ck != null)
+                ck.remove();
+            ck = mMap.addCircle(new CircleOptions()
+                    .center(new LatLng(lat, lng))
+                    .radius(100)
+                    .fillColor(Color.argb(50, 30, 30, 150))
+                    .strokeWidth(0));
+
         }
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
 
-
-        location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
-        if (location != null) {
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
-
-            CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
-                    .zoom(15)                   // Sets the zoom
-                    .build();                   // Creates a CameraPosition from the builder
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-        }
-
-*/
 
 
         Poly.instantiate();
-        /*for (int i = 0; i < Poly.listOfpoints.size(); i++) {
-            //FIX BUG
-                Poly.listOfPolygons.add(MapsActivity.instance.mMap.addPolygon(new PolygonOptions()
-                        .addAll(Poly.listOfpoints.get(i))
-                        .strokeWidth(0)
-                        .fillColor(Color.argb(50, 0, 250, 0))));
-            }*/
-            for (int i = 0; i < Poly.listOfpoints.size(); i++)
-                polyList.add(new Zone(Poly.listOfPolygons.get(i), 0));
+        for (int i = 0; i < Poly.listOfpoints.size(); i++)
+            polyList.add(new Zone(Poly.listOfPolygons.get(i), 0, 0));
 
 
         dbRef.addValueEventListener(new ValueEventListener() {
@@ -311,26 +347,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
-        /*
-            for(int i = 0; i < 70; i++){
-                dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
-            }
-
-        */
 
 
-        //dbRef.setValue(polyList);
-        //for(int i = 0; i < polyList.size(); i++){
-        //    dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
-        //}
+        for(int i = 0; i < 70; i++){
+            dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
+        }
+
+
+
+
 
         if(mService != null){
             Log.i("ATLEASTHERE", "pls");
         }
+        Log.v("TEST","TESSSTING");
+
 
     }
-
-/*
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
@@ -340,6 +373,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     if (ContextCompat.checkSelfPermission(this,
                             Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show();
+                        ProcessPhoenix.triggerRebirth(this);
+
                     }
                 } else {
                     Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
@@ -349,7 +384,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
- */
 
     public void sendYellowNotification(){
         NotificationCompat.Builder builder = new NotificationCompat.Builder(MapsActivity.instance, MapsActivity.instance.CHANNEL_ID)
@@ -380,9 +414,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "test1" ;
-                    //getString(R.string.channel_name);
+            //getString(R.string.channel_name);
             String description = "another test1";
-                    //getString(R.string.channel_description);
+            //getString(R.string.channel_description);
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
@@ -431,6 +465,3 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 }
-
-
-
