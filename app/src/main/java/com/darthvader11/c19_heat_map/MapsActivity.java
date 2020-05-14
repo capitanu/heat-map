@@ -332,7 +332,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Poly.instantiate();
         for (int i = 0; i < Poly.listOfpoints.size(); i++)
-            polyList.add(new Zone(Poly.listOfPolygons.get(i), 0));
+            polyList.add(new Zone(Poly.listOfPolygons.get(i), 0, 0));
 
 
         dbRef.addValueEventListener(new ValueEventListener() {
@@ -350,10 +350,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-            /*for(int i = 0; i < 70; i++){
+            for(int i = 0; i < 70; i++){
                 dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
             }
-*/
+
 
 
 

@@ -104,7 +104,7 @@ public class SendToDatabase implements Runnable {
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                             int users = dataSnapshot.child(String.valueOf(MapsActivity.instance.i)).child("users").getValue(Integer.class);
-                                            users = 2*users + 1;
+                                            users++;
                                             SendToDatabase.nrOfUsers = users;
                                             int mockUsers = dataSnapshot.child(String.valueOf(MapsActivity.instance.i)).child("mockUsers").getValue(Integer.class);
                                             reff.child(String.valueOf(MapsActivity.instance.i)).child("users").setValue(users);
@@ -145,7 +145,7 @@ public class SendToDatabase implements Runnable {
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                             int users = dataSnapshot.child(String.valueOf(MapsActivity.instance.i)).child("users").getValue(Integer.class);
-                                            users = 2*users + 1;
+                                            users++;
                                             int mockUsers = dataSnapshot.child(String.valueOf(MapsActivity.instance.i)).child("mockUsers").getValue(Integer.class);
                                             SendToDatabase.nrOfUsers = users;
                                             reff.child(String.valueOf(MapsActivity.instance.i)).child("users").setValue(users);
