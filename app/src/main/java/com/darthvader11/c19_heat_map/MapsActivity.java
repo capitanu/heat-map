@@ -6,6 +6,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import android.Manifest;
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ComponentName;
@@ -63,6 +64,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.firebase.database.ValueEventListener;
+import com.jakewharton.processphoenix.ProcessPhoenix;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -78,6 +80,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, SharedPreferences.OnSharedPreferenceChangeListener {
 
     public GoogleMap mMap;
@@ -85,6 +89,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private DatabaseReference dbRef;
     public Location location;
     public static MapsActivity instance;
+    public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
+
     public long maxId = 0;
     public String CHANNEL_ID = "test";
     public int i;
@@ -99,11 +105,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Circle ck;
     public boolean isHome = false;
     public static final String SHARED_PREFS = "sharedPrefs";
-    public static final String HOME_LONG = "hLong";
     public static final String HOME_LAT = "hLat";
-    SharedPreferences.Editor editor;
-    LocationManager locationManager;
+    public static final String HOME_LNG = "hLng";
     Criteria criteria;
+    LocationManager locationManager;
+    public SharedPreferences.Editor editor;
+
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -122,7 +129,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     };
 
-
+    private  boolean checkAndRequestPermissions() {
+        int permissionSendMessage = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+        int locationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        if (locationPermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if (permissionSendMessage != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+        }
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),REQUEST_ID_MULTIPLE_PERMISSIONS);
+            return false;
+        }
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,36 +154,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+       // mapFragment.getMapAsync(this);
         Button btnSetHome = findViewById(R.id.btnSet);
         Button btnSetCircle = findViewById(R.id.btnSetCurrent);
 
-        //SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-        //editor = sharedPreferences.edit();
 
-        Dexter.withContext(this)
-                .withPermissions(Arrays.asList(
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                ))
-                .withListener(new MultiplePermissionsListener(){
-
-                    @Override
-                    public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
-
-                        bindService(new Intent(MapsActivity.this, BackgroundService.class),
-                                mServiceConnection,
-                                Context.BIND_AUTO_CREATE);
-                        Log.v("this","happenede");
-                        //mService.requestLocationUpdates();
-                    }
-
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
-
-                    }
-                }).check();
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        editor = sharedPreferences.edit();
 
 
         btnSetCircle.setOnClickListener(new View.OnClickListener() {
@@ -179,10 +179,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     //editor.putFloat(HOME_LONG, (float) location.getLongitude());
 
                     mk.remove();
+
                 }
                 catch (Exception e){
                     e.printStackTrace();
                 }
+                editor.putFloat(HOME_LAT, (float) location.getLatitude());
+                editor.putFloat(HOME_LNG, (float) location.getLongitude());
+                editor.apply();
+                Log.v("CCDev", "Added to the shared preferences");
             }
         });
         
@@ -200,17 +205,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     );
                     //editor.putFloat(HOME_LAT, (float) location.getLatitude());
                    // editor.putFloat(HOME_LONG, (float) location.getLongitude());
+
                     mk.remove();
                 }
+                editor.putFloat(HOME_LAT, (float)  mk.getPosition().latitude);
+                editor.putFloat(HOME_LNG, (float)  mk.getPosition().longitude);
+                editor.apply();
+                Log.v("CCDev", "Added to the shared preferences");
 
             }
         });
 
-
+        if(checkAndRequestPermissions()) {
+                // carry on the normal flow, as the case of  permissions  granted.
+            mapFragment.getMapAsync(this);
+            bindService(new Intent(MapsActivity.this, BackgroundService.class),
+                    mServiceConnection,
+                    Context.BIND_AUTO_CREATE);
+        }
 
         dbRef = FirebaseDatabase.getInstance().getReference().child("Polygons");
         instance = this;
         main = Thread.currentThread();
+        criteria = new Criteria();
+
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            }
+        }
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
 
 
 
@@ -236,6 +268,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onStop();
     }
 
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
@@ -257,7 +290,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        //SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+
 
         //double lat = sharedPreferences.getFloat(HOME_LAT, -1);
         //double log = sharedPreferences.getFloat(HOME_LONG, -1);
@@ -275,6 +308,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Set all to zero
          */
 
+
+
+
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        float lng = sharedPreferences.getFloat(HOME_LNG, -1);
+        float lat = sharedPreferences.getFloat(HOME_LAT, -1);
+        Log.v("CCDev",String.valueOf(lng));
+        Log.v("CCDev",String.valueOf(lat));
+        if(lat != -1 && lng != -1) {
+            if (ck != null)
+                ck.remove();
+            ck = mMap.addCircle(new CircleOptions()
+                .center(new LatLng(lat, lng))
+                .radius(100)
+                .fillColor(Color.argb(50, 30, 30, 150))
+                .strokeWidth(0));
+
+        }
 
 
 
@@ -299,9 +350,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
+            /*for(int i = 0; i < 70; i++){
+                dbRef.child(String.valueOf(maxId + i)).setValue(polyList.get(i));
+            }
+*/
+
+
+
+
         if(mService != null){
             Log.i("ATLEASTHERE", "pls");
         }
+        Log.v("TEST","TESSSTING");
+
 
     }
     @Override
@@ -313,6 +374,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     if (ContextCompat.checkSelfPermission(this,
                             Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show();
+                        ProcessPhoenix.triggerRebirth(this);
+
                     }
                 } else {
                     Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();

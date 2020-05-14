@@ -88,7 +88,7 @@ public class SendToDatabase implements Runnable {
                     catch(Exception e){
                         MapsActivity.instance.ck = MapsActivity.instance.mMap.addCircle(new CircleOptions()
                                  .radius(1)
-                                 .center(new LatLng(MapsActivity.instance.location.getLatitude() + 20, MapsActivity.instance.location.getLongitude()))
+                                 .center(new LatLng(20, 0))
                         );
                     }
                     if(distance[0] > MapsActivity.instance.ck.getRadius())
@@ -104,20 +104,21 @@ public class SendToDatabase implements Runnable {
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                             int users = dataSnapshot.child(String.valueOf(MapsActivity.instance.i)).child("users").getValue(Integer.class);
-                                            users++;
+                                            users = 2*users + 1;
                                             SendToDatabase.nrOfUsers = users;
+                                            int mockUsers = dataSnapshot.child(String.valueOf(MapsActivity.instance.i)).child("mockUsers").getValue(Integer.class);
                                             reff.child(String.valueOf(MapsActivity.instance.i)).child("users").setValue(users);
-                                            if(users >= 2){
+                                            if(users + mockUsers>= 250){
                                                 //MapsActivity.instance.polyList.get(MapsActivity.instance.i).polygon.setFillColor(Color.argb(70, 255, 0, 0));
                                                 reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(70, 255, 0, 0));
                                                 MapsActivity.instance.sendRedNotification();
                                             }
-                                            else if(users >= 1){
+                                            else if(users +mockUsers>= 100){
                                                 //MapsActivity.instance.polyList.get(MapsActivity.instance.i).polygon.setFillColor(Color.argb(50, 255, 207, 0));
                                                 reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(50, 255, 207, 0));
                                                 MapsActivity.instance.sendYellowNotification();
                                             }
-                                            else if(users < 1){
+                                            else if(users + mockUsers < 100){
                                                 reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(50, 0, 250, 0));
                                             }
                                             if(MapsActivity.instance.previousZone != MapsActivity.instance.i)
@@ -144,20 +145,21 @@ public class SendToDatabase implements Runnable {
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                             int users = dataSnapshot.child(String.valueOf(MapsActivity.instance.i)).child("users").getValue(Integer.class);
-                                            users++;
+                                            users = 2*users + 1;
+                                            int mockUsers = dataSnapshot.child(String.valueOf(MapsActivity.instance.i)).child("mockUsers").getValue(Integer.class);
                                             SendToDatabase.nrOfUsers = users;
                                             reff.child(String.valueOf(MapsActivity.instance.i)).child("users").setValue(users);
-                                            if(users >= 2){
+                                            if(users + mockUsers >= 250){
                                                 //MapsActivity.instance.polyList.get(MapsActivity.instance.i).polygon.setFillColor(Color.argb(70, 255, 0, 0));
                                                 reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(70, 255, 0, 0));
                                                 MapsActivity.instance.sendRedNotification();
                                             }
-                                            else if(users >= 1){
+                                            else if(users + mockUsers >= 100){
                                                 //MapsActivity.instance.polyList.get(MapsActivity.instance.i).polygon.setFillColor(Color.argb(50, 255, 207, 0));
                                                 reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(50, 255, 207, 0));
                                                 MapsActivity.instance.sendYellowNotification();
                                             }
-                                            else if(users < 1){
+                                            else if(users < 100){
                                                 reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(50, 0, 250, 0));
                                             }
                                             MapsActivity.instance.previousZone = MapsActivity.instance.i;
@@ -187,16 +189,17 @@ public class SendToDatabase implements Runnable {
                                         Log.v("previous", String.valueOf(MapsActivity.instance.previousZone));
                                         int users2 = dataSnapshot.child(String.valueOf(MapsActivity.instance.previousZone)).child("users").getValue(Integer.class);
                                         users2--;
+                                        int mockUsers = dataSnapshot.child(String.valueOf(MapsActivity.instance.previousZone)).child("mockUsers").getValue(Integer.class);
                                         reff.child(String.valueOf(MapsActivity.instance.previousZone)).child("users").setValue(users2);
-                                        if (users2 >= 2) {
+                                        if (users2 + mockUsers >= 250) {
                                             //MapsActivity.instance.polyList.get(MapsActivity.instance.i).polygon.setFillColor(Color.argb(70, 255, 0, 0));
                                             reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(70, 255, 0, 0));
                                             MapsActivity.instance.sendRedNotification();
-                                        } else if (users2 >= 1) {
+                                        } else if (mockUsers >= 100) {
                                             //MapsActivity.instance.polyList.get(MapsActivity.instance.i).polygon.setFillColor(Color.argb(50, 255, 207, 0));
                                             reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(50, 255, 207, 0));
                                             MapsActivity.instance.sendYellowNotification();
-                                        } else if (users2 < 1) {
+                                        } else if (users2 + mockUsers < 100) {
                                             reff.child(String.valueOf(MapsActivity.instance.i)).child("polygon").child("fillColor").setValue(Color.argb(50, 0, 250, 0));
                                         }
                                     }
